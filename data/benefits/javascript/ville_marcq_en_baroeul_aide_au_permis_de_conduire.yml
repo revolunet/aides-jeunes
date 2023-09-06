@@ -1,0 +1,31 @@
+label: Bourse communale au permis de conduire
+institution: ville_marcq_en_baroeul
+description:
+  La municipalité de Marcq-en-Baroeul finance 70% du permis de conduire (forfait basique, avec une bourse
+  plafonnée à 750€) en échange d’une activité bénévole d’intérêt collectif dans une association
+  domiciliée dans la ville.
+prefix: la
+conditions_generales:
+  - type: communes
+    values:
+      - "59378"
+  - type: age
+    operator: ">="
+    value: 18
+  - type: age
+    operator: "<="
+    value: 25
+conditions:
+  - S'engager à ne bénéficier d'aucune autre aide financière au permis de conduire.
+  - Effectuer sa demande de bourse avant de commencer la formation au permis de conduire.
+  - S'inscrire dans une école de conduite marcquoise.
+voluntary_conditions:
+  - S'engager à réaliser 50 heures de bénévolat dans une association marcquoise.
+interestFlag: _interetPermisDeConduire
+type: float
+unit: €
+periodicite: ponctuelle
+montant: 750
+legend: maximum
+link: https://www.marcq-en-baroeul.org/mon-quotidien/jeunesse-11-ans-et/bourse-pour-le-bafa-ou-le-permis
+form: https://www.marcq-en-baroeul.org/images/pdf/famille/jeunesse/dossier-candidature-bourse-bafa-permis-02-2023.pdf
