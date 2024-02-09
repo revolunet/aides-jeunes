@@ -10,4 +10,9 @@ tax_benefit_system = build_tax_benefit_system(
     reforms = ['openfisca_france_local.epci_test_factory.epci_reform']
 )
 
-application = create_app(tax_benefit_system)
+def simulation_configurator(simulation):
+    simulation.max_spiral_loops = 2
+    simulation.max_spiral_lookback_months = 4
+
+
+application = create_app(tax_benefit_system, simulation_configurator=simulation_configurator)
