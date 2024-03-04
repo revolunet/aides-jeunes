@@ -309,18 +309,21 @@ router.beforeEach((to, from, next) => {
       store.verifyBenefitVariables()
     }
 
+    const getResultatsWrapperChildrenNames = () => {
+      const resultatsWrapperRoute = to.matched.find(
+        (record) => record.name === "resultatsWrapper"
+      )
+      return resultatsWrapperRoute
+        ? resultatsWrapperRoute.children.map((child) => child.name)
+        : []
+    }
+
     if (
       to.matched.some((r) => r.name === "foyer" || r.name === "simulation") &&
       !to.path.endsWith("/date_naissance") &&
       typeof to.name === "string" &&
-      [
-        "redirect",
-        "resultats",
-        "resultatsDetails",
-        "resultatsGroupeAides",
-        "resultatsLieuxGeneriques",
-        "benefitLieuInformations",
-      ].indexOf(to.name) === -1 &&
+      ["redirect", ...getResultatsWrapperChildrenNames()].indexOf(to.name) ===
+        -1 &&
       !store.passSanityCheck &&
       to.query.debug === undefined
     ) {
