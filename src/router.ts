@@ -309,21 +309,14 @@ router.beforeEach((to, from, next) => {
       store.verifyBenefitVariables()
     }
 
-    const getResultatsWrapperChildrenNames = () => {
-      const resultatsWrapperRoute = to.matched.find(
-        (record) => record.name === "resultatsWrapper"
-      )
-      return resultatsWrapperRoute
-        ? resultatsWrapperRoute.children.map((child) => child.name)
-        : []
-    }
-
     if (
       to.matched.some((r) => r.name === "foyer" || r.name === "simulation") &&
       !to.path.endsWith("/date_naissance") &&
       typeof to.name === "string" &&
-      ["redirect", ...getResultatsWrapperChildrenNames()].indexOf(to.name) ===
-        -1 &&
+      !(
+        to.name == "redirect" ||
+        to.matched.some((r) => r.name === "resultatsWrapper")
+      ) &&
       !store.passSanityCheck &&
       to.query.debug === undefined
     ) {
