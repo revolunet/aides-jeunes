@@ -46,12 +46,7 @@ export function resultRedirect(req: Request, res: Response) {
 }
 
 export async function persist(req: Request, res: Response) {
-  const { preventNotify, surveyOptin, email, phone } = req.body
-
-  if (!preventNotify && !email?.length && !phone?.length) {
-    return res.status(400).send({ result: "Missing Email or Phone" })
-  }
-
+  const { surveyOptin, email, phone } = req.body
   const simulation = req.simulation
 
   try {
@@ -76,7 +71,7 @@ export async function persist(req: Request, res: Response) {
         return res.status(422).send("Unsupported phone number format")
       }
     }
-    if (preventNotify) {
+    if (!email && !phone) {
       const simulationRecapUrl = `${process.env.MES_AIDES_ROOT_URL}/followups/recap/${followup.accessToken}`
       res.send({ simulationRecapUrl })
     } else {
