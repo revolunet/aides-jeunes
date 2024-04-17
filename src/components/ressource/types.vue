@@ -3,10 +3,11 @@
     <p>
       Sélectionnez les types de ressources perçues
       <strong>
-        <span v-if="individu._role === 'conjoint'">par votre conjoint(e)</span>
-        <span v-else-if="individu._role !== 'demandeur'"
-          >par {{ individu._firstName }}</span
+        <span v-if="individu._role === 'demandeur'">par vous uniquement</span>
+        <span v-else-if="individu._role === 'conjoint'"
+          >par votre conjoint(e)</span
         >
+        <span v-else> par {{ individu._firstName }} </span>
         depuis {{ store.dates.twelveMonthsAgo.label }}</strong
       >. Vous pourrez ensuite saisir les montants.
     </p>
@@ -14,10 +15,6 @@
       v-if="showInitialResourcesCollectionWarning"
       class="fr-alert fr-alert--info fr-my-1w"
     >
-      <p
-        >Nous avons besoin de <strong>vos ressources personnelles</strong> pour
-        cette étape.
-      </p>
       <p v-if="needCoupleResources || needParentsResources || hasChildrenMore16"
         >Les ressources perçues par
         <span v-if="needCoupleResources"> votre conjoint(e)</span>
@@ -174,7 +171,21 @@ export default {
       )
     },
     showInitialResourcesCollectionWarning() {
-      return this.individu._role === "demandeur"
+      return (
+        this.individu._role === "demandeur" && this.aditionnalResources.length
+      )
+    },
+    aditionnalResources() {
+      return ["de votre conjoint.e", "de vos parents", "de vos enfants"]
+    },
+    aditionnalResourcesText() {
+      if (this.aditionnalResources.length < 3) {
+        return this.aditionnalResources.join(" et ")
+      } else {
+        const last = this.aditionnalResources.last
+        const others = []
+        return `${others.join(", ")} et ${last}`
+      }
     },
   },
   watch: {
