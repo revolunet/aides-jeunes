@@ -36,9 +36,7 @@ const inputPhonePattern = computed(() => {
   return `^(((\\+?|00)(${diallingCodes})\\s?|0)[67])([\\s\\.\\-]?\\d{2}){4}`
 })
 
-const showSms =
-  process.env.VITE_SHOW_SMS_TAB &&
-  ABTestingService.getValues().Followup_SMS === "show"
+const showSms = process.env.VITE_SHOW_SMS_TAB
 
 StatisticsMixin.methods.sendEventToMatomo(
   EventCategory.Followup,
@@ -124,7 +122,6 @@ const postFollowup = async (surveyOptin, email?, phone?) => {
     surveyOptin,
     phone: formatPhoneNumber(phone),
     email,
-    contactRequired: true,
   }
   return await axios.post(uri, payload)
 }

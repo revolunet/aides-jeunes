@@ -18,11 +18,10 @@ conditions_generales:
     operator: "<="
 profils: []
 conditions:
-  - Être allocataire ou rattaché au dossier allocataire de vos parents.
-  - Se rapprocher de l'un des organismes de formation listés par la Caf de Meurthe-et-Moselle.
+  - Etre allocataire ou rattaché au dossier allocataire de vos parents.
 interestFlag: _interetBafa
 type: bool
+unit: €
 periodicite: ponctuelle
-link: https://www.caf.fr/allocataires/caf-de-meurthe-et-moselle/offre-de-service/vie-personnelle/les-aides-aux-formations-bafa-et-bafd
-instructions: https://www.caf.fr/allocataires/caf-de-meurthe-et-moselle/offre-de-service/vie-personnelle/les-aides-aux-formations-bafa-et-bafd
-private: true
+link: https://www.caf.fr/allocataires/caf-de-meurthe-et-moselle/offre-de-service/vie-professionnelle/les-aides-aux-formations-bafa-et-bafd
+instructions: https://www.caf.fr/allocataires/caf-de-meurthe-et-moselle/offre-de-service/vie-professionnelle/les-aides-aux-formations-bafa-et-bafd

@@ -1,12 +1,16 @@
 import { MultipleProperty } from "../property.js"
 import IndividuMethods from "../../individu.js"
 import { ressourceTypes } from "../../resources.js"
-import { capitalize } from "../../../lib/utils.js"
+import { capitalize } from "vue"
 
 export default {
   ressources: new MultipleProperty({
-    question: ({ individu }) =>
-      `Quel type de revenu ${IndividuMethods.label(individu, "percevoir")} ?`,
+    question: ({ individu }) => {
+      return `Quel type de revenu ${IndividuMethods.label(
+        individu,
+        "percevoir"
+      )} ?`
+    },
     items: ressourceTypes.map((resource: any) => {
       return { value: resource.id, label: resource.label }
     }),

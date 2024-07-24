@@ -4,7 +4,6 @@ export interface SurveyAnswer {
   id: string
   value: string | boolean
   comments?: string
-  plansToAsk?: boolean
 }
 
 export interface SurveyBenefit {
@@ -23,7 +22,7 @@ export interface Survey {
   error?: string | any
   type: SurveyType
   createdAt?: Date
-  touchedAts: Date[]
+  openedAt?: Date
   smsSentAt?: Date
 }
 

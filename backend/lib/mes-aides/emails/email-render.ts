@@ -15,6 +15,7 @@ const __dirname = new URL(".", import.meta.url).pathname
 function readFile(filePath) {
   return fs.readFileSync(path.join(__dirname, filePath), "utf8")
 }
+const benefitActionTemplate = readFile("templates/benefit-action.mjml")
 const emailTemplate = readFile("templates/email.mjml")
 const footerTemplate = readFile("templates/footer.mjml")
 const headerTemplate = readFile("templates/header.mjml")
@@ -24,16 +25,19 @@ const simulationUsefulnessTemplate = readFile(
 )
 const emailTemplates = {
   [EmailType.SimulationResults]: simulationResultsTemplate,
+  [EmailType.BenefitAction]: benefitActionTemplate,
   [EmailType.SimulationUsefulness]: simulationUsefulnessTemplate,
 }
 const simulationResultsTextTemplate = readFile(
   "templates/simulation-results.txt"
 )
+const benefitActionTextTemplate = readFile("templates/benefit-action.txt")
 const simulationUsefulnessTextTemplate = readFile(
   "templates/simulation-usefulness.txt"
 )
 const textTemplates = {
   [EmailType.SimulationResults]: simulationResultsTextTemplate,
+  [EmailType.BenefitAction]: benefitActionTextTemplate,
   [EmailType.SimulationUsefulness]: simulationUsefulnessTextTemplate,
 }
 
@@ -46,8 +50,6 @@ const dataTemplateBuilder = (
   return {
     benefitTexts,
     baseURL: config.baseURL,
-    contactEmail: config.contactEmail,
-    contextName: config.contextName,
     ctaLink: `${config.baseURL}${followup.surveyPathTracker}`,
     droits: formatedBenefits,
     emailRenderURL: `${config.baseURL}${followup.emailRenderPath}${emailType}`,
@@ -91,7 +93,7 @@ export async function emailRender(emailType: EmailType, followup) {
       ? Promise.resolve(followup)
       : followup.populate("simulation"))
 
-    parameters = await openfiscaController.getParametersAsync(
+    parameters = await openfiscaController.getParameters(
       populated.simulation.dateDeValeur
     )
 
@@ -117,16 +119,17 @@ export async function emailRender(emailType: EmailType, followup) {
   ]).then((values) => {
     if (emailType === EmailType.SimulationResults) {
       return {
-        subject: `Récapitulatif de votre simulation sur ${config.contextName} [${followup.simulation._id}]`,
+        subject: `Récapitulatif de votre simulation sur 1jeune1solution.gouv.fr [${followup.simulation._id}]`,
         text: values[0],
         html: values[1].html,
         attachments: values[1].attachments,
       }
-    } else if (emailType === EmailType.SimulationUsefulness) {
+    } else if (
+      emailType === EmailType.BenefitAction ||
+      emailType === EmailType.SimulationUsefulness
+    ) {
       return {
-        subject: `Votre simulation sur ${
-          config.contextName
-        } vous a-t-elle été utile ? [${
+        subject: `Votre simulation sur 1jeune1solution.gouv.fr vous a-t-elle été utile ? [${
           followup.simulation?._id || followup.simulation
         }]`,
         text: values[0],
@@ -141,6 +144,8 @@ export async function emailRenderBySurveyType(
   followup
 ) {
   switch (surveyType) {
+    case SurveyType.TrackClickOnBenefitActionEmail:
+      return emailRender(EmailType.BenefitAction, followup)
     case SurveyType.TrackClickOnSimulationUsefulnessEmail:
       return emailRender(EmailType.SimulationUsefulness, followup)
     case SurveyType.BenefitAction:

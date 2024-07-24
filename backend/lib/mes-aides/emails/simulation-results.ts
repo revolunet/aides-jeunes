@@ -1,5 +1,4 @@
-import { assign, map } from "lodash-es"
-import { capitalize } from "../../../../lib/utils.js"
+import { assign, capitalize, map } from "lodash-es"
 
 import {
   formatDroitEstime,
@@ -49,7 +48,7 @@ export function formatBenefits(benefits, parameters) {
     }
 
     return assign({}, droit, {
-      imgSrc: `/${getBenefitImage(droit)}`,
+      imgSrc: getBenefitImage(droit),
       montant: value,
       ctaLink: ctaLink,
       ctaLabel: ctaLabel,

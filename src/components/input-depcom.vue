@@ -165,7 +165,7 @@ export default {
             )
             return []
           }
-          this.store.updateError()
+          this.store.updateError(null)
           if (!communes.map((c) => c.nom).includes(this.nomCommuneValue)) {
             this.nomCommuneValue = CommuneMethods.getMostPopulated(communes).nom
           }

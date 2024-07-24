@@ -1,13 +1,11 @@
 import IndividuMethods from "./individu.js"
-import { datesGenerator } from "./dates.js"
+import { generator } from "./dates.js"
 
 import { Situation } from "../lib/types/situations.js"
 import { Individu } from "../lib/types/individu.js"
 import { Activite } from "./enums/activite.js"
 import { PatrimoineCategory } from "./enums/patrimoine.js"
 import { Resource, ResourceCategory } from "./types/resources.js"
-
-// When adding new resources, make sure to update showSocialLabelList computed property in src/components/ressource/montants.vue
 
 export const ressourceCategories: ResourceCategory[] = [
   {
@@ -20,7 +18,7 @@ export const ressourceCategories: ResourceCategory[] = [
   },
   {
     id: "allocations",
-    label: "Allocations",
+    label: "Allocation(s)",
   },
   {
     id: "indemnites",
@@ -28,7 +26,7 @@ export const ressourceCategories: ResourceCategory[] = [
   },
   {
     id: "pensions",
-    label: "Pensions & rentes",
+    label: "Pension(s)",
   },
   {
     id: "patrimoine",
@@ -142,7 +140,7 @@ export const ressourceTypes: Resource[] = [
         55 <=
         IndividuMethods.age(
           individu,
-          datesGenerator(situation.dateDeValeur).today.value
+          generator(situation.dateDeValeur).today.value
         )
       )
     },
@@ -193,7 +191,7 @@ export const ressourceTypes: Resource[] = [
     isRelevant: (situation: Situation, individu: Individu) => {
       const age = IndividuMethods.age(
         individu,
-        datesGenerator(situation.dateDeValeur).today.value
+        generator(situation.dateDeValeur).today.value
       )
       return Boolean(
         16 <= age && (age <= 25 || (individu.handicap && age < 30))
@@ -335,16 +333,6 @@ export const ressourceTypes: Resource[] = [
     hint: "Entrez le montant avant la retenue à la source",
     isRelevant(situation: Situation, individu: Individu) {
       return individu.activite === Activite.Retraite
-    },
-  },
-  {
-    id: "retraite_nette",
-    label: "Rente(s) d'éducation, d'orphelin…",
-    category: "pensions",
-    prefix: "une",
-    hint: "Entrez le montant avant la retenue à la source",
-    isRelevant(situation: Situation, individu: Individu) {
-      return individu.activite !== Activite.Retraite
     },
   },
   {

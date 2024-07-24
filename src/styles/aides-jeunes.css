@@ -2,26 +2,23 @@
   /* CSS redirections (DSFR override) */
   --text-disabled-grey: #666;
   --background-info-container: #f9f8f6;
-
   --blue-france-sun-113-625: var(--main-color);
   --blue-france-sun-113-625-hover: var(--main-color-hover);
   --blue-france-sun-113-625-active: var(--main-color-active);
-
   --blue-cumulus-main-526: var(--secondary-color);
-
+  --blue-cumulus-925-125-hover: var(--secondary-color-hover);
+  --blue-cumulus-925-125-active: var(--secondary-color-active);
   --info-425-625: var(--info-main-color);
-
+  --info-425-625-hover: var(--info-main-color-hover);
+  --info-425-625-active: var(--info-main-color-active);
   --info-950-100: var(--info-secondary-color);
   --info-950-100-hover: var(--info-secondary-color-hover);
   --info-950-100-active: var(--info-secondary-color-active);
-
   --secondary-btn-text-color: var(--main-color);
   --secondary-btn-border-color: var(--main-color);
-
   --tool-link-color: var(--main-color);
   --tool-link-background-color: transparent;
   --tool-link-background-color-hover: var(--background-raised-grey-hover);
-
   --sidemenu-active-link-text-color: var(--main-color);
 }
 
@@ -35,7 +32,7 @@
 }
 
 .fr-sidemenu__link[aria-current="true"] {
-  color: var(--sidemenu-active-link-text-color) !important;
+  color: var(--sidemenu-active-link-text-color);
 }
 
 @font-face {
@@ -59,10 +56,8 @@ details,
 input[type="checkbox"] + label:before,
 input[type="image"],
 input[type="radio"] + label:before,
-input[type="radio"],
 input[type="reset"],
 input[type="submit"],
-input:focus,
 select,
 textarea {
   outline-color: var(--input-outline);
@@ -98,7 +93,7 @@ textarea {
 }
 
 .fr-text--disabled {
-  color: #666666 !important;
+  color: #666666;
 }
 
 .fr-icon-spin {
@@ -134,11 +129,6 @@ textarea {
 
 .fr-tile .fr-highlight {
   background: #faf4ce;
-}
-
-.fr-tile {
-  border-bottom: solid;
-  border-bottom-color: var(--main-color);
 }
 
 .fr-btn {
@@ -183,6 +173,20 @@ textarea {
 [data-text] {
   position: relative;
   z-index: 10;
+}
+
+[data-text]:hover:after {
+  display: block;
+  content: attr(data-text);
+  padding: 10px;
+  background-color: var(--background-contrast-info);
+  position: absolute;
+  /* inset: auto auto 150% 0; */
+  inset: 120% 0 auto auto;
+  margin: auto;
+  width: 250px;
+  z-index: calc(var(--ground) + 10000);
+  text-transform: none;
 }
 
 .aj-page--full-height {
@@ -249,6 +253,10 @@ textarea {
   min-width: 120px;
 }
 
+.aj-benefit-cta-light-container {
+  background-color: var(--background-info-container);
+}
+
 .aj-institution-icon {
   width: 70px;
   min-width: 70px;
@@ -276,16 +284,12 @@ textarea {
   --icon-size: 2rem;
 }
 
-.aj-revenirplustard {
+.aj-jedonnemonavis {
   text-align: right;
 }
 
 @media (max-width: 576px) {
-  .aj-hero-section {
-    max-height: none;
-    height: auto;
-  }
-  .aj-revenirplustard {
+  .aj-jedonnemonavis {
     text-align: left;
     padding-left: 4px;
     font-size: 80%;
@@ -324,11 +328,6 @@ textarea {
   .aj-responsive-icon-places,
   [class*=" fr-icon-"]:before {
     --icon-size: 1.5rem;
-  }
-
-  .aj-action-buttons-sm > li,
-  .aj-action-buttons-sm button {
-    flex: 1;
   }
 }
 
@@ -563,48 +562,4 @@ textarea {
 
 .aj-header > a:after {
   display: none;
-}
-
-.aj-montant-input-container {
-  display: flex;
-  align-items: center;
-}
-
-.aj-step-view {
-  border-left: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-}
-
-.fr-connect:before {
-  background-image: url(/public/img/logo-moncomptepro.svg);
-}
-
-/* Custom code for allow `border-radius` on input radio (prevent using current background-image class on DSFR version > 1.12.1) */
-.fr-radio-rich input[type="radio"] + label {
-  background-image: none;
-  box-shadow: inset 0 0 0 1px var(--border-default-grey);
-}
-
-.fr-radio-rich input[type="radio"] + label:before {
-  box-shadow: inset 0 0 0 1px var(--border-action-high-grey),
-    inset 0 0 0 8px var(--background-default-grey),
-    inset 0 0 0 8px var(--background-action-high-blue-france);
-  height: 1rem;
-  left: 1.75rem;
-  margin-top: -0.5rem;
-  position: absolute;
-  top: 50%;
-  width: 1rem;
-  border-radius: 50%;
-}
-
-.fr-radio-rich input[type="radio"]:checked + label {
-  box-shadow: inset 0 0 0 1px var(--border-action-high-blue-france);
-  background-image: none;
-}
-
-.fr-radio-rich input[type="radio"]:checked + label:before {
-  box-shadow: inset 0 0 0 1px var(--border-action-high-grey),
-    inset 0 0 0 4px var(--background-default-grey),
-    inset 0 0 0 8px var(--background-action-high-blue-france);
 }

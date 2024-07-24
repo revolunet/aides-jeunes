@@ -19,9 +19,6 @@ const buildId = Date.now().toString()
 
 const {
   baseURL,
-  contextName,
-  chatwoot,
-  contactEmail,
   github,
   matomo,
   netlifyContributionURL,
@@ -46,6 +43,12 @@ function createSentryPlugin() {
   })
 }
 
+enum LayoutType {
+  MesAidesLayout = "MesAidesLayout",
+  BaseLayout = "BaseLayout",
+}
+
+const contextName = "1jeune1solution"
 const benefitCount = benefits.all.filter((benefit) => !benefit.private).length
 
 export default defineConfig(async ({ mode }) => {
@@ -54,8 +57,7 @@ export default defineConfig(async ({ mode }) => {
     VITE_BENEFIT_COUNT: benefitCount,
     VITE_MATOMO_ID: matomo.id,
     VITE_MATOMO_URL: matomo.url,
-    VITE_CHATWOOT_TOKEN: chatwoot.websiteToken,
-    VITE_CONTACT_EMAIL: contactEmail,
+    VITE_CONTACT_EMAIL: "aides-jeunes@beta.gouv.fr",
     VITE_CONTEXT_NAME: contextName,
     VITE_BASE_URL: baseURL,
     VITE_CONTEXT: process.env.NODE_ENV,
@@ -68,6 +70,7 @@ export default defineConfig(async ({ mode }) => {
     VITE_NETLIFY_PR: process.env.BRANCH,
     VITE_PIVOT_URL: process.env.PIVOT_URL,
     VITE_1J1S_URL: "https://www.1jeune1solution.gouv.fr",
+    VITE_LAYOUT: LayoutType.BaseLayout,
     VITE_TITLE: `Évaluez vos droits aux aides avec le simulateur de ${contextName}`,
     VITE_DESCRIPTION: `7 minutes suffisent pour évaluer vos droits à ${benefitCount} aides avec le simulateur de ${contextName}.`,
     // For now FranceConnect require an additional query params to be enabled
@@ -119,7 +122,6 @@ export default defineConfig(async ({ mode }) => {
             VITE_DESCRIPTION: viteEnvironment.VITE_DESCRIPTION,
             VITE_BASE_URL: viteEnvironment.VITE_BASE_URL,
             VITE_CONTEXT_NAME: viteEnvironment.VITE_CONTEXT_NAME,
-            VITE_CHATWOOT_TOKEN: viteEnvironment.VITE_CHATWOOT_TOKEN,
           },
         },
       }),

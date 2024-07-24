@@ -43,7 +43,7 @@ export function useLieux() {
       isRelevant: (demandeur: any) => {
         return demandeur.activite === Activite.Chomeur
       },
-      types: ["france_travail"],
+      types: ["pole_emploi"],
     },
     {
       isRelevant: (demandeur: any) => {
@@ -80,7 +80,6 @@ export function useLieux() {
   }
 
   const loadLieux = async () => {
-    updating.value = true
     let city = store.situation.menage.depcom
     const simulationId = Simulations.getLatestId()
     if (!store.hasResults && !city && simulationId) {
@@ -95,15 +94,8 @@ export function useLieux() {
     }
 
     const benefitId = $route.params.benefitId
-    const getComputedBenefits = () =>
+    const storeBenefits =
       !store.calculs.dirty && store.calculs.resultats.droitsEligibles
-    let storeBenefits = getComputedBenefits()
-
-    if (!storeBenefits) {
-      await store.computeResults()
-      storeBenefits = getComputedBenefits()
-    }
-
     benefit.value =
       (storeBenefits &&
         (storeBenefits?.find(

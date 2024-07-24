@@ -91,74 +91,9 @@ export function determineOperationsOnBenefitLinkError(
     : processCron
   const operations: GristOperation[] = []
   const benefitId = benefitLinksCheckResult.id
-  const existingWarningsLink = existingWarnings?.[benefitId]
-
   benefitLinksCheckResult.links.forEach((link) => {
-    const existingWarning = existingWarningsLink?.[link.type]
+    const existingWarning = existingWarnings?.[benefitId]?.[link.type]
     processor(benefitLinksCheckResult, link, existingWarning, operations)
-    if (
-      (!existingWarning && existingWarningsLink) ||
-      (existingWarning && Object.entries(existingWarningsLink).length > 1)
-    ) {
-      // cas ou le lien a été supprimé ainsi que sa propriété
-      for (const type in existingWarningsLink) {
-        if (
-          !benefitLinksCheckResult.links.some(
-            (linkObject) =>
-              linkObject.link === existingWarningsLink[type]?.fields?.Lien &&
-              benefitLinksCheckResult.links.length > 0
-          ) || //Si le lien analysé n'est pas présent dans la liste des liens d'erreurs et qu'il y a au moins un lien
-          (!existingWarning &&
-            benefitLinksCheckResult.links.some(
-              (linkObject) =>
-                linkObject.link === existingWarningsLink[type]?.fields?.Lien &&
-                linkObject.ok
-            ))
-        ) {
-          processor(
-            benefitLinksCheckResult,
-            link,
-            existingWarningsLink[type],
-            operations
-          )
-        }
-      }
-    }
   })
-
   return operations
-}
-
-export function determineExistingWarningsFixByPrivateBenefits(
-  existingWarnings,
-  privateBenefits,
-  benefitOperationsList,
-  pullRequestURL?: string
-) {
-  for (const warningBenefitId in existingWarnings) {
-    const privateBenefit = privateBenefits?.filter(
-      (benefit) => benefit.id === warningBenefitId
-    )
-    if (privateBenefit?.length) {
-      for (const type in existingWarnings[warningBenefitId]) {
-        const PR =
-          pullRequestURL &&
-          existingWarnings[warningBenefitId][type].fields.PR !== pullRequestURL
-            ? { pullRequestURL }
-            : {}
-        benefitOperationsList.push([
-          {
-            type: "update",
-            data: {
-              id: existingWarnings[warningBenefitId][type].id,
-              fields: {
-                Corrige: true,
-                ...PR,
-              },
-            },
-          },
-        ])
-      }
-    }
-  }
 }

@@ -12,7 +12,6 @@
         v-if="isSimple(type.meta.id)"
         :index="index"
         :type="type"
-        :dates="store.dates"
         @update="process"
       />
       <RessourceMicroEntreprise

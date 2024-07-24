@@ -13,7 +13,6 @@
     inputmode="decimal"
     :aria-labelledby="ariaLabelledBy"
     @input="normalizeInput($event)"
-    @focus="$emit('focus', $event)"
   />
   <WarningMessage v-if="error" class="fr-mt-2w"
     >Ce champ n'est pas valide.</WarningMessage
@@ -21,9 +20,7 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue"
 import WarningMessage from "@/components/warning-message.vue"
-
 export default {
   name: "InputNumber",
   components: { WarningMessage },
@@ -34,10 +31,11 @@ export default {
     min: { type: Number, default: null },
     max: { type: Number, default: null },
     dataType: { type: String, default: "amount" },
-    value: { type: [Number, String] as PropType<number | string | null> },
+    value: { type: [Number, String] },
     modelValue: { type: [Number, String] },
+    emit: { type: Boolean, default: true },
   },
-  emits: ["input", "update:modelValue", "input-error", "focus"],
+  emits: ["input", "update:modelValue", "input-error"],
   data: function () {
     return {
       result: this.result,

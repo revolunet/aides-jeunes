@@ -9,7 +9,7 @@ const SurveySchema = new mongoose.Schema<Mongoose, Survey>(
     createdAt: { type: Date, default: Date.now },
     messageId: { type: String },
     repliedAt: { type: Date },
-    touchedAts: [{ type: Date }],
+    openedAt: { type: Date },
     smsSentAt: { type: Date },
     error: { type: Object },
     answers: [
@@ -17,7 +17,6 @@ const SurveySchema = new mongoose.Schema<Mongoose, Survey>(
         id: String,
         value: mongoose.Schema.Types.Mixed,
         comments: String,
-        plansToAsk: { type: Boolean, required: false },
       },
     ],
     type: {

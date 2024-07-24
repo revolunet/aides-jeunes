@@ -1,29 +1,19 @@
 :root {
-  /* input focus */
+  --demo-wrapper-background-blue: #5770be;
   --input-outline: #0a76f6;
-
-  /* buttons */
   --main-color: #000091;
   --main-color-hover: #1212ff;
   --main-color-active: #2323ff;
-  --main-btn-text-color: #fff;
-  --border-radius: 0rem;
-
-  /*
-    progress bar
-    home colored background
-    home main text
-    */
   --secondary-color: #417dc4;
-
-  /* en savoir plus text */
+  --secondary-color-hover: #a9c8fb;
+  --secondary-color-active: #8ab8f9;
   --info-main-color: #0063cb;
-
-  /* en savoir plus background */
+  --info-main-color-hover: #3b87ff;
+  --info-main-color-active: #6798ff;
   --info-secondary-color: #e8edff;
   --info-secondary-color-hover: #c2d1ff;
   --info-secondary-color-active: #a9bfff;
-
-  /* Font */
+  --border-radius: 0rem;
   --font-family: inherit;
+  --main-btn-text-color: #fff;
 }

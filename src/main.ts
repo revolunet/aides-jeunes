@@ -26,7 +26,6 @@ import "dayjs/locale/fr.js"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import dayjs from "dayjs"
 import { createPinia } from "pinia"
-import { persistDataOnSessionStorage, useStore } from "@/stores/index.js"
 
 const Resizer = {
   install: function () {
@@ -64,6 +63,11 @@ if (navigator.cookieEnabled) {
   })
 }
 
+app.config.globalProperties.$filters = {
+  capitalize(value: string = "") {
+    return value.charAt(0).toUpperCase() + value.slice(1)
+  },
+}
 declare module "vue" {
   export interface ComponentCustomProperties {
     $theme: {
@@ -75,6 +79,9 @@ declare module "vue" {
       }[]
       update(string): void
     }
+    $filters: {
+      capitalize(string): string
+    }
   }
 }
 
@@ -82,16 +89,5 @@ dayjs.locale("fr")
 dayjs.extend(customParseFormat)
 
 app.use(pinia)
-const store = useStore()
-store.$onAction(persistDataOnSessionStorage)
-store.initialize()
-store.setOpenFiscaParameters()
 app.use(router)
-
-router.isReady().then(() => {
-  if (router.currentRoute.value.query.debug === "parcours") {
-    store.setDebug(true)
-  }
-})
-
-app.mount("#app")
+app.mount(document.body)

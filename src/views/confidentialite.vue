@@ -302,7 +302,7 @@ export default {
             "Permet le stockage du secret associé à une simulation et de valider l'accès aux résultats de simulation",
         },
         {
-          name: "mcp_token",
+          name: "github_handle_token",
           lifetime: "Session",
           purpose:
             "Permet de sécuriser l'accès à l'espace d'administration du simulateur",

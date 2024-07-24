@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { datesGenerator } from "../dates.js"
+import { generator } from "../dates.js"
 import { filterByInterestFlag } from "./filter-interest-flag.js"
 import ScolariteCategories from "../scolarite.js"
 
@@ -25,7 +25,7 @@ const includesAndExcludesCondition = (condition, value) => {
 }
 const PROFILE_STRATEGY = {
   apprenti: ({ situation }: { situation: Situation }): boolean => {
-    return situation.demandeur?._contratAlternance === Activite.Apprenti
+    return situation.demandeur?._contrat_alternant === Activite.Apprenti
   },
   beneficiaire_rsa: (data) => {
     return testRSARecipient(data)
@@ -54,7 +54,7 @@ const PROFILE_STRATEGY = {
   },
   professionnalisation: ({ situation }: { situation: Situation }): boolean => {
     return (
-      situation.demandeur?._contratAlternance === Activite.Professionnalisation
+      situation.demandeur?._contrat_alternant === Activite.Professionnalisation
     )
   },
   salarie: ({ situation }: { situation: Situation }): boolean => {
@@ -68,9 +68,6 @@ const PROFILE_STRATEGY = {
   },
   situation_handicap: ({ situation }: { situation: Situation }): boolean => {
     return situation.demandeur?.handicap === true
-  },
-  parent: ({ situation }: { situation: Situation }): boolean => {
-    return situation?.enfants && situation.enfants.length > 0
   },
 }
 
@@ -313,7 +310,7 @@ export function computeJavascriptBenefits(
     situation.demandeur?.date_naissance,
     "year"
   )
-  const periods = datesGenerator(situation.dateDeValeur)
+  const periods = generator(situation.dateDeValeur)
   const data = { situation, openfiscaResponse, periods, age }
 
   benefits.all

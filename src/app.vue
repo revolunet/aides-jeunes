@@ -9,52 +9,57 @@
 import iFrameLayout from "@/components/iframe-layout.vue"
 import BandeauDemo from "@/components/bandeau-demo.vue"
 import context from "@/context/index.js"
-import { useIframeStore } from "@/stores/iframe.js"
-import { useThemeStore } from "@/stores/theme.js"
+import { persistDataOnSessionStorage, useStore } from "@/stores/index.js"
+import storageService from "@/lib/storage-service.js"
 
-const { Layout } = context
+const { BaseLayout, MesAidesLayout } = context
 
 export default {
   name: "App",
   components: {
     BandeauDemo,
+    BaseLayout,
     iFrameLayout,
-    Layout,
+    MesAidesLayout,
   },
   setup() {
-    const iframeStore = useIframeStore()
-    const themeStore = useThemeStore()
+    const store = useStore()
+    store.$onAction(persistDataOnSessionStorage)
+    store.initialize()
+    store.setOpenFiscaParameters()
     return {
-      iframeStore,
-      themeStore,
+      store,
     }
   },
   computed: {
     layout: function () {
-      return this.iframeStore.inIframe ? "iFrameLayout" : "Layout"
+      return this.store.inIframe
+        ? "iFrameLayout"
+        : (process.env.VITE_LAYOUT as string)
     },
   },
   mounted() {
     const params = new URLSearchParams(document.location.search.substring(1))
     if (params.has("iframe")) {
-      this.iframeStore.setInIframe()
+      this.store.setIframeOrigin(null)
     }
 
     if (params.has("data-with-logo")) {
-      this.iframeStore.setIframeHeaderCollapse(
-        params.get("data-with-logo") !== "false"
-      )
+      this.store.setIframeHeaderCollapse(params.get("data-with-logo"))
+    }
+    const savedTheme = storageService.local.getItem("theme")
+    if (savedTheme) {
+      params.set("theme", savedTheme)
     }
 
     if (params.has("theme")) {
-      this.themeStore.set(params.get("theme"))
+      // Met à jour le thème uniquement si on est dans une iframe
+      if (window.parent !== window) {
+        this.$theme.update(params.get("theme"))
+      }
     }
-
-    if (
-      (window.parent !== window || this.iframeStore.inIframe) &&
-      this.themeStore.theme
-    ) {
-      this.$theme.update(this.themeStore.theme)
+    if (this.store.iframeOrigin) {
+      this.store.setIframeOrigin(null)
     }
   },
 }

@@ -5,12 +5,21 @@ const page = script.dataset.fromHome !== undefined ? "" : "simulation"
 const src = new URL(`${process.env.BASE_URL}/${page}`)
 
 src.searchParams.set("iframe", true)
-src.searchParams.set("utm_source", `iframe@${window.location.hostname}`)
-src.searchParams.set("utm_term", window.location.pathname)
-src.searchParams.set("data-with-logo", script.dataset.withLogo !== undefined)
-if (script.dataset.theme !== undefined) {
-  src.searchParams.set("theme", script.dataset.theme)
+src.searchParams.set(
+  "integratorUrl",
+  encodeURIComponent(window.location.href.toString())
+)
+
+if (script.dataset.withLogo !== undefined) {
+  src.searchParams.set("data-with-logo", true)
 }
+if (script.dataset.fromHome !== undefined) {
+  src.searchParams.set("data-from-home", true)
+}
+
+const selectedTheme =
+  localStorage.getItem("theme") || script.dataset.theme || "default-dsfr"
+src.searchParams.set("theme", selectedTheme)
 
 const iframe = document.createElement("iframe")
 const iframeAttributes = {
@@ -29,15 +38,4 @@ for (const key in iframeAttributes) {
 
 iframeResize({}, iframe)
 
-if (script.parentElement.tagName === "HEAD") {
-  const htmlDocument = script.parentElement.parentElement
-  const children = htmlDocument.childNodes
-  for (var i = 0; i < children.length; i++) {
-    if (children[i].tagName === "BODY") {
-      children[i].appendChild(iframe)
-      break
-    }
-  }
-} else {
-  script.before(iframe)
-}
+script.before(iframe)

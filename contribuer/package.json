@@ -7,8 +7,7 @@
     "lint": "next lint",
     "build": "next build",
     "start": "next start",
-    "prettier": "prettier --write .",
-    "lint-staged": "prettier --write"
+    "export": "npm run build && next export"
   },
   "author": "Thomas Guillet",
   "license": "AGPL-3.0",
@@ -16,8 +15,7 @@
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.2",
     "netlify-identity-widget": "^1.9.2",
-    "next": "14.2.4",
-    "prettier": "^3.2.5",
+    "next": "13.5.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   }

@@ -5,7 +5,6 @@ import { StandardBenefit } from "@data/types/benefits.d.js"
 import { skipSendStatistics } from "./shared.js"
 import tracker from "@/plugins/tracker.js"
 import { EventAction } from "@lib/enums/event.js"
-import * as Sentry from "@sentry/vue"
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -88,7 +87,6 @@ export async function sendEventToRecorder(event: RecorderEvent): Promise<void> {
       !isProduction && console.debug("Event to recorder", event)
     } else {
       console.error(e)
-      Sentry.captureException(e)
     }
   }
 }

@@ -2,7 +2,8 @@
   <form :data-testid="fieldName" @submit.prevent="next">
     <div v-for="enfant in enfants" :key="enfant.id" class="fr-form-group">
       <YesNoQuestion v-model="enfant._hasRessources">
-        {{ capitalize(enfant._firstName) }} a-t-il/elle perçu des ressources
+        {{ $filters.capitalize(enfant._firstName) }} a-t-il/elle perçu des
+        ressources
         <strong>depuis {{ store.dates.twelveMonthsAgo.label }}</strong
         > ?
       </YesNoQuestion>
@@ -16,7 +17,6 @@ import ActionButtons from "@/components/action-buttons.vue"
 import YesNoQuestion from "@/components/yes-no-question.vue"
 import { nullifyUndefinedValue } from "@lib/answers.js"
 import { useStore } from "@/stores/index.js"
-import { capitalize } from "@lib/utils.js"
 
 export default {
   name: "RessourcesTypes",
@@ -27,7 +27,6 @@ export default {
   setup() {
     return {
       store: useStore(),
-      capitalize,
     }
   },
   data() {

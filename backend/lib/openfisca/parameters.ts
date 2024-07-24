@@ -11,39 +11,30 @@ export const parametersList: OpenfiscaParameters = {
   "marche_travail.salaire_minimum.smic.nb_heures_travail_mensuel": 151.67,
 }
 
-let parameterPromise
 let parameters
 
-async function fetchParameters() {
-  const values = await Promise.all(
-    Object.keys(parametersList).map((parameter) =>
-      openfisca.getPromise(`/parameter/${parameter}`)
+const computeParameters = async () => {
+  if (!parameters) {
+    const values = await Promise.all(
+      Object.keys(parametersList).map((parameter) =>
+        openfisca.getPromise(`/parameter/${parameter}`)
+      )
     )
-  )
 
-  const newParameters = {}
-  values.forEach((value) => {
-    newParameters[value.id] = value.values
-  })
-  return newParameters
-}
-
-function requestParameters() {
-  if (!parameterPromise) {
-    parameterPromise = fetchParameters().then((values) => {
-      parameters = values
-      return values
+    const newParameters = {}
+    values.forEach((value) => {
+      newParameters[value.id] = value.values
     })
+    parameters = newParameters
   }
-  return parameterPromise
 }
 
-function computeParameter(parameter, date) {
+const computeParameter = (parameter, date) => {
   const values = parameters?.[parameter]
   if (values) {
-    const closestDate = Object.keys(values)
-      .reverse()
-      .find((valueDate) => new Date(valueDate) < date)
+    const closestDate = Object.keys(values).find(
+      (valueDate) => new Date(valueDate) < date
+    )
     if (closestDate) {
       return values[closestDate]
     }
@@ -62,27 +53,19 @@ export function getParameter(parameter, date) {
   return computeParameter(parameter, date)
 }
 
-export function getParameters_(date): OpenfiscaParameters {
+export async function getParameters(date) {
+  await computeParameters()
+
   const results = {}
-  Object.keys(parametersList).forEach((parameter) => {
+  Object.keys(parametersList).forEach(async (parameter) => {
     results[parameter] = computeParameter(parameter, date)
   })
-  return results as OpenfiscaParameters
-}
 
-export function getParameters(date): OpenfiscaParameters {
-  requestParameters()
-  return getParameters_(date)
-}
-
-export async function getParametersAsync(date): Promise<OpenfiscaParameters> {
-  await requestParameters()
-  return getParameters_(date)
+  return results
 }
 
 export default {
   parametersList,
   getParameter,
   getParameters,
-  getParametersAsync,
 }

@@ -25,9 +25,9 @@ const individuSchema: IndividuGenerator = {
     },
   },
   apprenti: {
-    src: "_contratAlternance",
-    fn: function (contratAlternance) {
-      return contratAlternance === Activite.Apprenti
+    src: "_contrat_alternant",
+    fn: function (contratAlternant) {
+      return contratAlternant === Activite.Apprenti
     },
   },
   date_naissance: {
@@ -73,13 +73,6 @@ const individuSchema: IndividuGenerator = {
       return computeDistanceCommunes(jeuneCommune, parentCommune)
     },
   },
-  categorie_salarie: {
-    src: "_alternanceFonctionPublique",
-    fn: (_alternanceFonctionPublique) =>
-      _alternanceFonctionPublique === true
-        ? "public_non_titulaire"
-        : "prive_non_cadre",
-  },
   contrat_de_travail_debut: {
     src: "_nombreMoisDebutContratDeTravail",
     fn: function (_nombreMoisDebutContratDeTravail, _, situation) {
@@ -123,9 +116,9 @@ const individuSchema: IndividuGenerator = {
     },
   },
   professionnalisation: {
-    src: "_contratAlternance",
-    fn: function (contratAlternance) {
-      return contratAlternance === Activite.Professionnalisation
+    src: "_contrat_alternant",
+    fn: function (contratAlternant) {
+      return contratAlternant === Activite.Professionnalisation
     },
   },
   regime_securite_sociale: {

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import dayjs from "dayjs"
 import { version } from "@lib/simulation.js"
-import { datesGenerator } from "@lib/dates.js"
+import { generator as datesGenerator } from "@lib/dates.js"
 import { generateAllSteps } from "@lib/state/generator.js"
 import { getAnswer, isStepAnswered, storeAnswer } from "@lib/answers.js"
 import { categoriesRnc, patrimoineTypes } from "@lib/resources.js"
@@ -64,6 +64,9 @@ function defaultStore(): Store {
     calculs: defaultCalculs(),
     dates: datesGenerator(now),
     title: null,
+    inIframe: false,
+    iframeOrigin: null,
+    iframeHeaderCollapse: false,
     modalState: null,
     saveSituationError: null,
     openFiscaParameters: {},
@@ -380,7 +383,7 @@ export const useStore = defineStore("store", {
       }
       this.setDirty()
     },
-    updateError(error?: string) {
+    updateError(error: string) {
       this.error = error
     },
     setFormRecapEmailState(newState: string | undefined) {
@@ -546,13 +549,23 @@ export const useStore = defineStore("store", {
             this.setMessage(
               `🚀 Vous avez ajouté <abbr title="${missingBenefits.join(
                 ", "
-              )}">une nouvelle aide</abbr>&nbsp;!<br/>Étant donné que nous ne savons pas encore comment celle-ci doit être calculée, si vous faites votre simulation jusqu’au bout vous obtiendrez un message d’erreur.`
+              )}">une nouvelle aide</abbr>&nbsp;!<br/>Étant donné que nous ne savons pas encore comm
+
+
+ent celle-ci doit être calculée, si vous faites votre simulation jusqu’au bout vous obtiendrez un message d’erreur.`
             )
           }
         })
     },
     setSaveSituationError(saveSituationError: string) {
       this.saveSituationError = saveSituationError
+    },
+    setIframeOrigin(newOrigin: string) {
+      this.inIframe = true
+      this.iframeOrigin = newOrigin
+    },
+    setIframeHeaderCollapse(collapse = false) {
+      this.iframeHeaderCollapse = collapse
     },
     setTitle(newTitle: string) {
       this.title = newTitle

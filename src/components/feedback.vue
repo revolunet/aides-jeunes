@@ -60,7 +60,6 @@
       <button
         v-if="!showExpertLinks"
         class="fr-btn fr-btn--sm"
-        data-testid="partenaire-actions"
         @click="toggleLinks"
       >
         Je suis partenaire
@@ -83,7 +82,6 @@
               :href="openfiscaAxeURL"
               target="_blank"
               title="Analysez l'évolution des aides en fonction des ressources : graphique - Nouvelle fenêtre"
-              data-testid="openfisca-axe-link"
               >Analysez l'évolution des aides en fonction des ressources
             </a>
           </li>

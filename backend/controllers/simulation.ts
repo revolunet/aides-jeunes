@@ -190,8 +190,9 @@ function openfiscaTest(req: Request, res) {
 }
 
 function redirect(req: Request, res) {
-  const redirectTo = req.redirectTo || req?.query?.to || "/resultats"
-  res.redirect(`/simulation/redirect${redirectTo ? `?to=${redirectTo}` : ""}`)
+  res.redirect(
+    `/simulation/redirect${req?.query?.to ? `?to=${req.query.to}` : ""}`
+  )
 }
 
 function enrichBenefitsList(benefits) {

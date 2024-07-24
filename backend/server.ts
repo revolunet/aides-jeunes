@@ -7,8 +7,9 @@ import configure from "./configure.js"
 const __dirname = new URL(".", import.meta.url).pathname
 const app: Application = express()
 
-app.use(morgan("combined"))
 configure(app)
+const port = process.env.PORT
+app.use(morgan("combined"))
 
 app.use(express.static(path.join(__dirname, "../../dist")))
 app.route("/*").get(function (req, res) {
@@ -21,9 +22,8 @@ const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
   res.status(parseInt(err.code) || 500).send(err)
   next()
 }
-app.use([errorMiddleware, morgan("combined", { stream: process.stderr })])
+app.use(errorMiddleware)
 
-const port = process.env.PORT
 app.listen(port, () => {
   console.log(
     `Aides Jeunes server listening on port ${port}, in ${app.get(

@@ -1,3 +1,3 @@
-import { getParametersAsync } from "../lib/openfisca/parameters.js"
+import { getParameters } from "../lib/openfisca/parameters.js"
 
-export default { getParametersAsync }
+export default { getParameters }

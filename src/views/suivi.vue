@@ -11,7 +11,7 @@
               <h3>Merci d'avoir rempli ce questionnaire !</h3>
               <div v-if="showAccompanimentBlock">
                 <p class="fr-text--lg">
-                  Vous avez besoin d'aide pour effectuer vos démarches ? Prenez
+                  Vous avez besoin d'aide pour effectuer vos démarches ? Prenez
                   rendez-vous avec notre équipe pour vous faire accompagner.</p
                 >
                 <p>
@@ -24,10 +24,10 @@
                   </a>
                 </p>
 
-                <p class="fr-mt-3w">
-                  La prise de rendez-vous se fait en quelques minutes et vous
+                <p class="fr-mt-3w"
+                  >La prise de rendez-vous se fait en quelques minutes et vous
                   permet de bénéficier d'un accompagnement d'une quinzaine de
-                  minutes par une personne de notre équipe.</p
+                  minutes par une personne de notre équipe</p
                 >
               </div>
             </div>
@@ -53,10 +53,10 @@
           <div v-else class="fr-alert fr-alert--warning">
             <h3 class="fr-alert__title">
               Merci, nous sommes désolés que le simulateur ne vous ait pas été
-              utile.
+              utile
             </h3>
-            <p>
-              À la fin de ce questionnaire vous aurez la possibilité de prendre
+            <p
+              >À la fin de ce questionnaire vous aurez la possibilité de prendre
               un RDV téléphonique avec une personne de l'équipe pour poser vos
               questions sur les aides et les démarches.
             </p>
@@ -103,56 +103,7 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="showPlansToAskQuestion(droit.choiceValue)">
-                  <legend class="fr-fieldset__legend fr-px-0 fr-pt-1w">
-                    Avez-vous prévu de faire une demande pour cette aide ?
-                  </legend>
-                  <div class="fr-fieldset__content">
-                    <div class="fr-container fr-px-0">
-                      <div class="fr-grid-row">
-                        <div class="fr-col-12 fr-col-md-8 fr-col-lg-8">
-                          <div class="fr-radio-group fr-radio-rich fr-mt-1w">
-                            <input
-                              :id="`yes_plans_to_ask_${droit.id}`"
-                              v-model="droit.plansToAsk"
-                              type="radio"
-                              :value="true"
-                              name="plans-to-ask"
-                              :aria-labelledby="`label_yes_plans_to_ask_${droit.id}`"
-                            />
-                            <label
-                              :id="`label_yes_plans_to_ask_${droit.id}`"
-                              class="fr-label"
-                              :for="`yes_plans_to_ask_${droit.id}`"
-                            >
-                              Oui
-                            </label>
-                          </div>
-                          <div
-                            class="fr-radio-group fr-radio-rich fr-mb-2w fr-mt-1w"
-                          >
-                            <input
-                              :id="`no_plans_to_ask_${droit.id}`"
-                              v-model="droit.plansToAsk"
-                              type="radio"
-                              :value="false"
-                              name="plans-to-ask"
-                              :aria-labelledby="`label_no_plans_to_ask_${droit.id}`"
-                            />
-                            <label
-                              :id="`label_no_plans_to_ask_${droit.id}`"
-                              :for="`no_plans_to_ask_${droit.id}`"
-                              class="fr-label"
-                            >
-                              Non
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="showReasonQuestion(droit)">
+                <div v-show="isNegative(droit.choiceValue)">
                   <label
                     :for="`choiceComments_${droit.id}`"
                     class="fr-label fr-text--bold fr-mt-2w fr-mb-1w"
@@ -191,7 +142,6 @@ import DroitHeader from "@/components/droit-header.vue"
 import StatisticsMixin from "@/mixins/statistics.js"
 import { EventAction, EventCategory } from "@lib/enums/event.js"
 import { useFollowupSurveyData } from "@/composables/use-followup-survey-data.js"
-import ABTestingService from "@/plugins/ab-testing-service"
 
 const choices = [
   { value: "already", label: "Rien, j'en bénéficiais déjà." },
@@ -200,17 +150,8 @@ const choices = [
   { value: "nothing", label: "Je n'ai rien fait." },
 ]
 
-function showReasonQuestion(droit) {
-  const { choiceValue, plansToAsk } = droit
-
-  if (ABTestingService.getValues().plans_to_ask_question === "show") {
-    return (
-      choiceValue === "failed" ||
-      (choiceValue === "nothing" && plansToAsk === false)
-    )
-  }
-
-  return choiceValue === "nothing" || choiceValue === "failed"
+function isNegative(value) {
+  return value === "failed" || value === "nothing"
 }
 
 const route = useRoute()
@@ -227,10 +168,6 @@ const isComplete = computed(() => {
     benefitsWithChoice.value.length
   )
 })
-
-const showPlansToAskQuestion = (choiceValue) =>
-  choiceValue === "nothing" &&
-  ABTestingService.getValues().plans_to_ask_question === "show"
 
 const showAccompanimentBlock = computed(() => {
   return benefitsWithChoice.value.some(
@@ -258,7 +195,6 @@ const submit = async () => {
     id: droit.id,
     value: droit.choiceValue,
     comments: droit.choiceComments,
-    plansToAsk: droit.plansToAsk,
   }))
 
   const { status } = await axios.post(
@@ -278,11 +214,6 @@ const submit = async () => {
       EventCategory.Accompagnement,
       EventAction.AfficheLienAccompagnement,
       route.path
-    )
-    StatisticsMixin.methods.sendEventToMatomo(
-      EventCategory.Accompagnement,
-      EventAction.PlansToAskQuestion,
-      ABTestingService.getValues().plans_to_ask_question
     )
   }
 }

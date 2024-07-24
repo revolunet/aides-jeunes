@@ -4,7 +4,6 @@ import cors from "cors"
 
 import { persist } from "../controllers/followups.js"
 import simulationController from "../controllers/simulation.js"
-import simulationDemo from "../controllers/simulation-demo.js"
 import teleservices from "../controllers/teleservices/index.js"
 
 export default function (api: Express) {
@@ -70,8 +69,6 @@ export default function (api: Express) {
     teleservices.verifyRequest,
     teleservices.exportRepresentation
   )
-
-  api.get("/simulation/demo", cors({ origin: "*" }), simulationDemo.get)
 
   const specificSimulationRoutes = express.Router({ mergeParams: true })
   api.use("/simulation/", specificSimulationRoutes)

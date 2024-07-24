@@ -68,7 +68,7 @@
             <router-link
               :to="{ name: 'aide', params: { benefitId: benefit.id } }"
             >
-              {{ capitalize(benefit.label) }}
+              {{ $filters.capitalize(benefit.label) }}
             </router-link>
           </li>
         </ul>
@@ -82,7 +82,6 @@ import { ref, computed, watch } from "vue"
 import institutionsBenefits from "generator:institutions"
 import CommuneMethods from "@/lib/commune.js"
 import { Commune } from "@lib/types/commune.d.js"
-import { capitalize } from "@lib/utils.js"
 
 const zipCode = ref("")
 const selectedCommune = ref<Commune | null>()

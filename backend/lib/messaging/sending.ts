@@ -36,6 +36,7 @@ async function sendMultipleInitialEmails(limit: number) {
             $in: [
               SurveyType.BenefitAction,
               SurveyType.TrackClickOnSimulationUsefulnessEmail,
+              SurveyType.TrackClickOnBenefitActionEmail,
             ],
           },
         },
@@ -102,8 +103,11 @@ export async function processSendEmails(
 }
 
 function getEmailSurvey(followup: Followup): Survey | undefined {
-  return followup.surveys.find(
-    (survey) => SurveyType.TrackClickOnSimulationUsefulnessEmail === survey.type
+  return followup.surveys.find((survey) =>
+    [
+      SurveyType.TrackClickOnBenefitActionEmail,
+      SurveyType.TrackClickOnSimulationUsefulnessEmail,
+    ].includes(survey.type)
   )
 }
 
@@ -139,7 +143,9 @@ function initialSurveySmsMongooseCriteria(): any {
         $elemMatch: {
           type: {
             $in: [
-              SurveyType.BenefitAction,
+              SurveyType.BenefitAction, // TODO:
+              // - remove this line 10 days after this comment added in production
+              //  - add a condition on createdAt : { $gt: "this comment added in production date" }
               SurveyType.TrackClickOnBenefitActionSms,
             ],
           },

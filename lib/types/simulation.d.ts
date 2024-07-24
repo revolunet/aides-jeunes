@@ -31,6 +31,7 @@ interface SimulationMethods {
 
 interface SimulationVirtuals {
   cookieName: string
+  returnPath: string
 }
 
 export interface Simulation

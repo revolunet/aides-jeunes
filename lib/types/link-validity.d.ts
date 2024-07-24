@@ -19,7 +19,7 @@ interface GristFields {
   Dans_une_PR: boolean
   Corrige: boolean
   Date_PR: number
-  Date_correction: Date
+  Date_correction: number
   PR: string
   Date_erreur_de_detection: string
   Aide: string
@@ -34,7 +34,7 @@ interface GristRecord {
   fields: GristFields
 }
 
-interface GristLinkValidityResponse {
+interface GristResponse {
   records: GristRecord[]
 }
 

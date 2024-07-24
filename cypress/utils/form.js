@@ -1,7 +1,6 @@
 import { urlInclude } from "./controllers.js"
 
-const submit = () =>
-  cy.get('button[type="submit"]:contains("Suivant"):visible').click()
+const submit = () => cy.get('button[type="submit"]:contains("Suivant")').click()
 
 const checkRequiredField = () => {
   submit()

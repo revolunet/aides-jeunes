@@ -6,16 +6,22 @@
   <div class="aj-iframe-footer">
     <p class="fr-text--center fr-p-1w">
       Simulateur propulsé par
-      <a :href="baseUrl" target="_blank"> la plateforme {{ contextName }} </a>
+      <a
+        href="
+      https://www.1jeune1solution.gouv.fr/"
+        target="_blank"
+      >
+        la plateforme 1jeune1solution
+      </a>
       - Accédez à nos
-      <a :href="`${baseUrl}/cgu`">CGU</a>
+      <a href="https://mes-aides.1jeune1solution.beta.gouv.fr/cgu">CGU</a>
     </p>
   </div>
 </template>
 
 <script lang="ts">
 import Header1J1S from "@/components/1j1s/header-1j1s.vue"
-import { useIframeStore } from "@/stores/iframe.js"
+import { useStore } from "@/stores/index.js"
 export default {
   name: "IFrameLayout",
   components: {
@@ -23,9 +29,7 @@ export default {
   },
   setup() {
     return {
-      store: useIframeStore(),
-      baseUrl: process.env.VITE_BASE_URL,
-      contextName: process.env.VITE_CONTEXT_NAME,
+      store: useStore(),
     }
   },
   computed: {

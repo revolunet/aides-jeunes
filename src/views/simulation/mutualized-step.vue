@@ -95,8 +95,6 @@ import { getAnswer, nullifyUndefinedValue } from "@lib/answers.js"
 import { useIndividu } from "@/composables/individu.js"
 import { useStore } from "@/stores/index.js"
 
-import ABTestingService from "@/plugins/ab-testing-service.js"
-
 export default {
   name: "MutualizedStep",
   components: {
@@ -165,7 +163,6 @@ export default {
         simulation: this.store.simulation,
         individu: this.individu,
         periods: this.store.dates,
-        abtestingService: ABTestingService,
       }
     },
     step() {
@@ -190,27 +187,15 @@ export default {
       this.$push()
     },
     requiredValueMissing(submit) {
-      let hasError =
+      const hasError =
         this.value === undefined ||
         (this.questionType === "text" && !this.value) ||
         (this.questionType === "number" &&
           typeof this.value !== "number" &&
           !isNaN(this.value))
 
-      let message = "Ce champ est obligatoire."
-      if (this.questionType === "date" && this.value === "wrong-date") {
-        hasError = true
-        message = "La date saisie est incorrecte."
-      } else if (
-        this.questionType === "date" &&
-        this.value === "incomplete-date"
-      ) {
-        hasError = true
-        message = "La date saisie est incomplete."
-      }
-
       if (submit) {
-        this.store.updateError(hasError && message)
+        this.store.updateError(hasError && "Ce champ est obligatoire.")
       }
 
       return hasError

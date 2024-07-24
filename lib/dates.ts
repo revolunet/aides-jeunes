@@ -18,7 +18,7 @@ function generateYear(dt: Dayjs): DateItem {
   }
 }
 
-export const datesGenerator = function (
+export const generator = function datesGenerator(
   dateDeValeur: Date | number | string
 ): DatesRange {
   const ref = dayjs(dateDeValeur)

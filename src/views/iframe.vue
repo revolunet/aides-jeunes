@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import storageService from "@/lib/storage-service.js"
 import { computed, onMounted, ref, watch } from "vue"
 import { Theme } from "@lib/enums/themes"
 
-const selectedTheme = ref(Theme.Default)
+const selectedTheme = ref(
+  storageService.local.getItem("theme") || Theme.Default
+)
 const options = ref(["data-from-home", "data-with-logo"])
 const scriptPath = "/documents/iframe-integration.js"
 const contactEmail = process.env.VITE_CONTACT_EMAIL
@@ -31,7 +34,8 @@ onMounted(setIframeContainer)
 
 watch(options, setIframeContainer)
 
-watch(selectedTheme, () => {
+watch(selectedTheme, (newTheme) => {
+  storageService.local.setItem("theme", newTheme)
   setIframeContainer()
 })
 </script>

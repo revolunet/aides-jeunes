@@ -71,6 +71,9 @@ export interface Store {
   // TODO Add type of dates
   dates: any
   title: string | null
+  inIframe: boolean
+  iframeOrigin: string | null
+  iframeHeaderCollapse: boolean
   modalState: string | null
   saveSituationError: string | null
   openFiscaParameters: OpenfiscaParameters

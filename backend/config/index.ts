@@ -2,8 +2,6 @@ import "dotenv/config"
 
 import { Configuration } from "../types/config.js"
 
-const isProduction = process.env.NODE_ENV == "production"
-
 /**
  * NOTE: Les variables d'environement suivantes
  * Sont défini directement par pm2 en production
@@ -15,25 +13,12 @@ const isProduction = process.env.NODE_ENV == "production"
  * - OPENFISCA_INTERNAL_ROOT_URL
  * - OPENFISCA_PUBLIC_ROOT_URL
  */
-
-const contextName = process.env.CONTEXT_NAME || "1jeune1solution"
-
 const config: Configuration = {
   env: process.env.NODE_ENV || "development",
   baseURL:
     process.env.MES_AIDES_ROOT_URL ||
     process.env.DEPLOY_URL || // Netlify deploy apps
     "http://localhost:8080",
-  accompagnement: {
-    path: "/accompagnement",
-    unauthorizedPath: "/accompagnement?unauthorized",
-    errorPath: "/accompagnement?error",
-  },
-  aideJeuneExperimentationURL: isProduction
-    ? "https://betagouv.github.io/aides-jeunes-experimentations"
-    : "http://127.0.0.1:3000",
-  contactEmail: process.env.EMAIL_CONTACT || "aides-jeunes@beta.gouv.fr",
-  contextName,
   franceConnect: {
     root: process.env.FRANCE_CONNECT_ROOT_URL,
     clientId: process.env.FRANCE_CONNECT_CLIENT_ID,
@@ -50,14 +35,13 @@ const config: Configuration = {
   },
   openfiscaURL:
     process.env.OPENFISCA_INTERNAL_ROOT_URL || "http://127.0.0.1:2000",
-  openfiscaAxeURL: isProduction
-    ? "https://betagouv.github.io/mes-aides-changent"
-    : "http://127.0.0.1:3000",
+  openfiscaAxeURL:
+    process.env.OPENFISCA_AXE_URL ||
+    "https://betagouv.github.io/mes-aides-changent",
   openfiscaPublicURL:
     process.env.OPENFISCA_PUBLIC_ROOT_URL || "http://127.0.0.1:2000",
-  openfiscaTracerURL: isProduction
-    ? "https://openfisca.github.io/tracer/"
-    : "http://127.0.0.1:3000",
+  openfiscaTracerURL:
+    process.env.OPENFISCA_TRACER_URL || "https://openfisca.github.io/tracer",
   netlifyContributionURL:
     process.env.NETLIFY_CONTRIBUTION_URL ||
     "https://contribuer-aides-jeunes.netlify.app",
@@ -76,34 +60,21 @@ const config: Configuration = {
   },
   github: {
     repository_url: "https://github.com/betagouv/aides-jeunes",
+    access_token_url: "https://github.com/login/oauth/access_token",
+    authenticated_url: "https://api.github.com/user",
+    authorize_url: "https://github.com/login/oauth/authorize",
+    client_secret: process.env.GITHUB_CLIENT_SECRET || "",
+    client_id: process.env.GITHUB_CLIENT_ID || "",
+    authorized_users: [
+      "Allan-CodeWorks",
+      "guillett",
+      "Shamzic",
+      "yasmine-glitch",
+    ],
   },
   matomo: {
     id: Number(process.env.MATOMO_ID) || 170,
     url: process.env.MATOMO_URL || "https://stats.data.gouv.fr",
-  },
-  moncomptepro: {
-    authorized_email_users:
-      process.env.NODE_ENV === "production"
-        ? [
-            "jeremy.pastouret@beta.gouv.fr",
-            "julie.marshall@sg.social.gouv.fr",
-            "simon.hamery@beta.gouv.fr",
-            "thomas.guillet@beta.gouv.fr",
-            "yasmine.berrada@beta.gouv.fr",
-          ]
-        : ["user@yopmail.com"],
-    client_id:
-      process.env.MCP_CLIENT_ID ||
-      "bluSy6KBAl0lMu3I5yD2sYeF90KaOZQEyvYBQNCMq5ohZ40VrMtx23dOPNYDj6Sej0wUE7qGni8g8QtNKstB3sxWbJSWBpfOqnl03AK7bqI0BlNWmw9Vdepy6GFXeVPL",
-    client_secret:
-      process.env.MCP_CLIENT_SECRET ||
-      "dB7BjWZaekMgzvJ70vpoTK276VOvyZQzkyGayEMtJZfP2DH7nYZU5lzsKjWaoVjLGNG1RATfXyqoStzLBumkwO8SyZIOJZMdR5OVKmkiSLpijjyv0W7s2QVNwafzyCWs",
-    provider:
-      process.env.MCP_PROVIDER ||
-      "https://app-sandbox.moncomptepro.beta.gouv.fr/",
-    redirect_uri:
-      process.env.MCP_REDIRECT_URI || "http://localhost:8080/api/auth/redirect",
-    scope: process.env.MCP_SCOPE || "openid email profile",
   },
   statistics: {
     url: process.env.VITE_STATS_URL || "http://localhost:4000/benefits",
@@ -121,18 +92,14 @@ const config: Configuration = {
   teleserviceAccessTokens: {
     PNDS: process.env.PNDS_TOKEN || "token",
   },
-  iframeTitle: `Évaluez vos droits aux aides avec le simulateur de ${contextName}`,
+  iframeTitle:
+    "Évaluez vos droits aux aides avec le simulateur de 1jeune1solution",
   smsService: {
     show: process.env.SMS_SERVICE_SHOW !== "false",
     username: process.env.SMS_SERVICE_USERNAME || "",
     password: process.env.SMS_SERVICE_PASSWORD || "",
     url: "https://europe.ipx.com/restapi/v1/sms/send",
     internationalDiallingCodes: ["33", "262", "508", "590", "594", "596"],
-  },
-  chatwoot: {
-    websiteToken: isProduction
-      ? "rFbbRuqt9WyC6zbZycr4rj4a"
-      : "Kzc1NTBxjW9riARcjWTcjHr5",
   },
 }
 

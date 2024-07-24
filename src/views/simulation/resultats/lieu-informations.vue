@@ -2,14 +2,20 @@
 import LieuInformations from "@/components/lieu-informations.vue"
 import BackButton from "@/components/buttons/back-button.vue"
 import { useLieux } from "@/composables/use-lieux.js"
-import { computed, onMounted } from "vue"
+import { useRouter } from "vue-router"
+import { onMounted } from "vue"
 
+const $router = useRouter()
 const { benefit, currentLieu, updating } = useLieux()
 
-const fallback = computed(() =>
-  benefit.value?.id ? `/simulation/resultats/${benefit.value.id}` : null
-)
-
+const goBack = () => {
+  if (benefit?.value?.id) {
+    const path = `/simulation/resultats/${benefit.value.id}`
+    $router.push(path)
+  } else {
+    $router.back()
+  }
+}
 onMounted(() => {
   updating.value = true
 })
@@ -17,7 +23,7 @@ onMounted(() => {
 
 <template>
   <div class="fr-pt-2w">
-    <BackButton class="fr-mb-2w" size="small" :fallback="fallback">
+    <BackButton class="fr-mb-2w" size="small" @click="goBack">
       Retour au détail de l'aide
     </BackButton>
     <h5 class="fr-h5 fr-mt-2w fr-mb-4w">

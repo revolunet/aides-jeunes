@@ -9,7 +9,6 @@ declare global {
       followup: Followup
       situation: any
       simulationId: string
-      redirectTo: string
     }
   }
 }

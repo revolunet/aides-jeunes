@@ -76,6 +76,9 @@ SimulationSchema.static("cookiePrefix", (): string => {
 SimulationSchema.virtual("cookieName").get(function () {
   return `simulation_${this._id}`
 })
+SimulationSchema.virtual("returnPath").get(function () {
+  return `/simulation/resultats?simulationId=${this._id}`
+})
 
 SimulationSchema.method("isAccessible", function (keychain) {
   return (

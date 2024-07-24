@@ -1,10 +1,10 @@
 <template>
   <div>
     <h2 class="fr-text--lead">En savoir plus</h2>
-    <p v-html="text"></p>
-    <BackButton size="small" data-testid="en-savoir-plus-back-button"
-      >Retour</BackButton
-    >
+    <p>{{ text }}</p>
+    <BackButton size="small" @click="window?.history.back()">
+      Retour
+    </BackButton>
   </div>
 </template>
 

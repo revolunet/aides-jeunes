@@ -234,7 +234,6 @@ export default {
     questionType: "number",
     moreInfo:
       "Lorsque vos parents sont séparés, il faut prendre les ressources du parent qui vous a à charge. Si vous êtes encore mineur et en garde alternée, il faut faire la somme des ressources des deux foyers fiscaux des parents séparés.",
-    help: "Si vous ne connaissez pas le revenu brut global de vos parents, écrivez 0 pour poursuivre la simulation. Attention, cela pourrait impacter l'exactitude des résultats de la simulation",
     showMoreInfo: ({ simulation }) => {
       const _situation = getAnswer(
         simulation.answers.current,
@@ -250,39 +249,26 @@ export default {
     question: "Bénéficiez-vous d'une bourse de l'enseignement supérieur ?",
   }),
 
-  _alternanceFonctionPublique: new EnumProperty({
-    question: "Êtes-vous en alternance dans la fonction publique ?",
+  categorie_salarie: new EnumProperty({
+    question: "Êtes-vous en alternance dans le secteur public ?",
     items: [
       {
         label: "Oui",
-        value: true,
+        value: "public_non_titulaire",
       },
       {
         label: "Non",
-        value: false,
-      },
-      {
-        label: "Je ne sais pas",
-        value: "_neSaitPas",
+        value: "prive_non_cadre",
       },
     ],
   }),
 
   date_debut_chomage: new DateProperty({
-    question: ({ individu, abtestingService }) => {
-      const abtestingEnvironment = abtestingService.getEnvironment()
-      const version = abtestingEnvironment.question_debut_chomage.value
-      if (version === "actuelle") {
-        return `Quand ${IndividuMethods.label(
-          individu,
-          "avoir"
-        )} commencé à être au chômage ?`
-      } else {
-        return `Depuis quand ${IndividuMethods.label(
-          individu,
-          "être"
-        )} inscrit(e) à France Travail ?`
-      }
+    question: ({ individu }) => {
+      return `Quand ${IndividuMethods.label(
+        individu,
+        "avoir"
+      )} commencé à être au chômage ?`
     },
   }),
 
@@ -598,7 +584,7 @@ export default {
     },
   }),
 
-  _contratAlternance: new EnumProperty({
+  _contrat_alternant: new EnumProperty({
     question: "Êtes-vous ?",
     items: [
       {

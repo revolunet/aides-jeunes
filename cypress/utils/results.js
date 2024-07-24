@@ -20,28 +20,6 @@ const IdentifyBenefit = (id, name) => {
     .should("match", name)
 }
 
-const hasBafaGroupPreviewBenefit = (mustBeDisplay) => {
-  const bafaGroupPreviewId = "bafa-bafd-preview"
-  if (mustBeDisplay) {
-    const name = /Aides BAFA et BAFD/
-    IdentifyBenefit(bafaGroupPreviewId, name)
-    cy.checkA11y()
-  } else {
-    cy.get(
-      `[itemtype="http://schema.org/GovernmentService"][data-testid="${bafaGroupPreviewId}"]`,
-      { timeout: 10000 }
-    ).should("not.exist")
-  }
-}
-
-const hasBafaBenefit = () => {
-  const name =
-    /Aide nationale au Brevet d'aptitude aux fonctions d'animateur \(BAFA\)/
-  const id = "caf-aide-nationale-bafa"
-  IdentifyBenefit(id, name)
-  cy.checkA11y()
-}
-
 const hasPrimeActivite = () => {
   const name = /Prime d’activité/
   const id = "ppa"
@@ -196,27 +174,6 @@ const hasAideVeloNationale = () => {
   IdentifyBenefit(id, name)
 }
 
-const hasVeloGroupPreviewBenefit = (mustBeDisplay) => {
-  const veloGroupPreviewId = "velo-preview"
-  if (mustBeDisplay) {
-    const name = /Aides à l'achat d'un vélo/
-    IdentifyBenefit(veloGroupPreviewId, name)
-    cy.checkA11y()
-  } else {
-    cy.get(
-      `[itemtype="http://schema.org/GovernmentService"][data-testid="${veloGroupPreviewId}"]`,
-      { timeout: 10000 }
-    ).should("not.exist")
-  }
-}
-
-const hasIncitationCovoiturage = () => {
-  const name = /Incitation au covoiturage de Montpellier Méditerranée Métropole/
-  const id =
-    "intercommunalite-montpellier-mediterranee-metropole-incitations-covoiturage-eligibilite"
-  IdentifyBenefit(id, name)
-}
-
 const hasRSA = () => {
   const name = /Revenu de solidarité active/
   const id = "rsa"
@@ -254,11 +211,9 @@ const receiveResultsEmail = () => {
   cy.get('[data-testid="simulation-id"')
     .invoke("text")
     .then((simulationId) => {
-      cy.url().then(() => {
-        cy.task("getLastEmail", email)
-          .its("headers.subject")
-          .should("includes", simulationId)
-      })
+      cy.task("getLastEmail", email)
+        .its("headers.subject")
+        .should("includes", simulationId)
     })
 }
 
@@ -296,11 +251,7 @@ const receiveResultsSms = () => {
 }
 
 const checkResultsRequests = () => {
-  cy.wait("@post-simulation").then(({ request, response }) => {
-    cy.writeFile(
-      `cypress/payloads/${Cypress.spec.fileName}-simulation.json`,
-      response.body
-    )
+  cy.wait("@post-simulation").should(({ request, response }) => {
     expect(request.method).to.equal("POST")
     expect(response.statusCode).to.equal(200)
   })
@@ -310,30 +261,9 @@ const checkResultsRequests = () => {
   })
 }
 
-const checkOpenFiscaAxe = () => {
-  cy.get('[data-testid="partenaire-actions"]').should("be.visible").click()
-  cy.get('[data-testid="openfisca-axe-link"]')
-    .should("be.visible")
-    .its("0.href")
-    .then((href) => {
-      const url = new URL(href)
-      const source = url.searchParams.get("source")
-      cy.request({
-        url: source,
-        timeout: 20000,
-      }).should((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.property("names")
-        expect(response.body).to.have.property("data")
-      })
-    })
-}
-
 export default {
   wait,
   back,
-  hasBafaGroupPreviewBenefit,
-  hasBafaBenefit,
   hasPrimeActivite,
   hasPrimeActiviteNearbyPlaces,
   hasSituationNearbyPlaces,
@@ -346,10 +276,7 @@ export default {
   captureFiscalResources,
   hasIleDeFranceAideAuMerite,
   hasAideVeloNationale,
-  hasVeloGroupPreviewBenefit,
-  hasIncitationCovoiturage,
   receiveResultsEmail,
   receiveResultsSms,
   checkResultsRequests,
-  checkOpenFiscaAxe,
 }
