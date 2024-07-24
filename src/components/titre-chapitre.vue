@@ -24,8 +24,16 @@
       <div class="fr-col-12 fr-col-sm-6">
         <h1 class="fr-my-0 fr-mx-0">{{ title }}</h1>
       </div>
-      <div class="fr-col-12 fr-col-sm-6 aj-jedonnemonavis">
-        <JeDonneMonAvis />
+      <div
+        v-if="showRevenirPlusTard"
+        class="fr-col-12 fr-col-sm-6 aj-revenirplustard"
+      >
+        <router-link
+          :to="{ name: 'revenirPlusTard' }"
+          data-testid="come-back-later-link"
+        >
+          Revenir plus tard ?
+        </router-link>
       </div>
     </div>
   </div>
@@ -35,15 +43,17 @@
 import Chapters from "@lib/chapters.js"
 import SendRecapButton from "@/components/buttons/send-recap-button.vue"
 import { useStore } from "@/stores/index.js"
-import { useResultsStore } from "@/stores/results-store.js"
-import JeDonneMonAvis from "@/components/je-donne-mon-avis.vue"
+import { useRouter } from "vue-router"
+import { useResultsStore } from "@/stores/results.js"
+import ABTestingService from "@/plugins/ab-testing-service.js"
 
 export default {
   name: "TitreChapitre",
-  components: { SendRecapButton, JeDonneMonAvis },
+  components: { SendRecapButton },
   setup() {
     return {
       store: useStore(),
+      router: useRouter(),
       resultsStore: useResultsStore(),
     }
   },
@@ -54,6 +64,12 @@ export default {
     shouldDisplayResults() {
       return this.resultsStore.shouldDisplayResults
     },
+    showSMS() {
+      return (
+        process.env.VITE_SHOW_SMS_TAB &&
+        ABTestingService.getValues().Followup_SMS === "show"
+      )
+    },
     title() {
       return this.getTitleByRoute(this.$route)
     },
@@ -62,13 +78,20 @@ export default {
         this.$route.name === "resultats" && !this.store.simulationAnonymized
       )
     },
+    showRevenirPlusTard() {
+      return (
+        this.$route.name !== "revenirPlusTard" &&
+        !this.$route.path.includes("date_naissance") &&
+        !this.$route.path.includes("simulation/resultat")
+      )
+    },
     emailButtonTitle() {
-      return process.env.VITE_SHOW_SMS_TAB
+      return this.showSMS
         ? "Recevoir les résultats par email/SMS"
         : "Recevoir les résultats par email"
     },
     emailModalTitle() {
-      return process.env.VITE_SHOW_SMS_TAB
+      return this.showSMS
         ? "Recevoir un récapitulatif"
         : "Recevoir un récapitulatif par email"
     },
@@ -84,6 +107,9 @@ export default {
       }
       if (path === "/simulation/resultats/recapitulatif_email") {
         return this.emailModalTitle
+      }
+      if (path === "/simulation/revenir-plus-tard") {
+        return "Revenir plus tard ?"
       }
 
       const current = path.replace(/\/en_savoir_plus/, "")

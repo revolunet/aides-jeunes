@@ -164,7 +164,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('contribuer/package-lock.json') }}-
       - name: Build static site
-        run: cd contribuer && npm run export
+        run: cd contribuer && npm run build
   openfisca_test_generation:
     name: OpenFisca test generation
     needs: [install, install_openfisca, check_data_file_consistency]
@@ -289,9 +289,16 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: cypress-${{matrix.test}}
-          path: cypress/videos
+          name: cypress-video-${{matrix.test}}
+          path: |
+            cypress/videos
+            cypress/screenshots
           retention-days: 10
+      - name: Upload cypress payloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-json-${{matrix.test}}
+          path: cypress/payloads
   check-for-openfisca-requirements-changes:
     name: Check openfisca requirement changes
     runs-on: ubuntu-20.04
@@ -304,7 +311,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: stop-early
-        run: if "${GITHUB_WORKSPACE}/.github/has-file-changes.sh openfisca/requirements.txt" ; then echo "{status}={success}" >> $GITHUB_OUTPUT ; fi
+        run: if "${GITHUB_WORKSPACE}/.github/has-file-changes.sh" "${GITHUB_WORKSPACE}/openfisca/requirements.txt" ; then echo "status=success" >> $GITHUB_OUTPUT ; fi
   test_definition_periods:
     name: Openfisca definition periods tests
     needs:
@@ -320,6 +327,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.18.2"
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -371,7 +382,10 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
       - id: has-changes
-        run: if "${GITHUB_WORKSPACE}/.github/has-file-changes.sh data/benefits" ; then echo "{status}={success}" >> $GITHUB_OUTPUT ; fi
+        run: |
+          if "${GITHUB_WORKSPACE}/.github/has-file-changes.sh" "${GITHUB_WORKSPACE}/data/benefits" ; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
   check_benefit_link_improvements:
     name: Check benefit link improvements and update link table if necessary
     needs: [test_benefit_file_changes]
@@ -381,6 +395,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.18.2"
       - name: Restore node modules
         uses: actions/cache@v3
         id: restore-dependencies

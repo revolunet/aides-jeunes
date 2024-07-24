@@ -1,12 +1,5 @@
 import storageService from "@/lib/storage-service.js"
-
-interface ABTesting {
-  [key: string]: {
-    index: number
-    value: string
-    deleted?: boolean
-  }
-}
+import type { ABTesting, ABTestingService } from "@lib/types/abtesting.d.js"
 
 /*
  * L'AB testing repose sur les custom variables de Matomo
@@ -47,12 +40,44 @@ function getEnvironment() {
   //   ABTestingEnvironment.name_of_the_test.value ||
   //   (Math.random() > 0.5 ? "A version name" : "B version name")
 
+  ABTestingEnvironment.aides_bafa = ABTestingEnvironment.aides_bafa || {}
+  ABTestingEnvironment.aides_bafa.index = 4
+  if (
+    !ABTestingEnvironment.aides_bafa.value ||
+    !ABTestingEnvironment.aides_bafa.value.endsWith("_conserve_position")
+  ) {
+    ABTestingEnvironment.aides_bafa.value =
+      Math.random() > 0.5
+        ? "aides_bafa_distinctes_conserve_position"
+        : "aides_bafa_fusionnees_conserve_position"
+  }
+
+  ABTestingEnvironment.plans_to_ask_question =
+    ABTestingEnvironment.plans_to_ask_question || {}
+  ABTestingEnvironment.plans_to_ask_question.index = 3
+  ABTestingEnvironment.plans_to_ask_question.value =
+    ABTestingEnvironment.plans_to_ask_question.value ||
+    (Math.random() > 0.5 ? "show" : "hidden")
+
   const versions = ["version_actuelle", "version_test_1", "version_test_2"]
   const ctaEmailRecontact = ABTestingEnvironment.CTA_EmailRecontact || {}
   ctaEmailRecontact.index ||= 5
   ctaEmailRecontact.value ||=
     versions[Math.floor(Math.random() * versions.length)]
   ABTestingEnvironment.CTA_EmailRecontact = ctaEmailRecontact
+
+  ABTestingEnvironment.question_debut_chomage =
+    ABTestingEnvironment.question_debut_chomage || {}
+  ABTestingEnvironment.question_debut_chomage.index = 1
+  ABTestingEnvironment.question_debut_chomage.value =
+    ABTestingEnvironment.question_debut_chomage.value ||
+    (Math.random() > 0.5 ? "reformulation" : "actuelle")
+
+  ABTestingEnvironment.Followup_SMS = ABTestingEnvironment.Followup_SMS || {}
+  ABTestingEnvironment.Followup_SMS.index = 2
+  ABTestingEnvironment.Followup_SMS.value =
+    ABTestingEnvironment.Followup_SMS.value ||
+    (Math.random() > 0.5 ? "show" : "hide")
 
   storageService.local.setItem("ABTesting", ABTestingEnvironment)
   return ABTestingEnvironment
@@ -69,7 +94,7 @@ function extractValueMap(env: ABTesting): { [key: string]: string } {
   }, {})
 }
 
-const ABTestingService = {
+const ABTestingService: ABTestingService = {
   getValues() {
     return extractValueMap(getEnvironment())
   },

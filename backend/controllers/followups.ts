@@ -14,7 +14,6 @@ import { phoneNumberValidation } from "../../lib/phone-number.js"
 import config from "../config/index.js"
 import { sendSimulationResultsEmail } from "../lib/messaging/email/email-service.js"
 import { sendSimulationResultsSms } from "../lib/messaging/sms/sms-service.js"
-import dayjs from "dayjs"
 
 export function followup(
   req: Request,
@@ -40,42 +39,48 @@ export function followup(
     })
 }
 
-export function resultRedirect(req: Request, res: Response) {
-  simulationController.attachAccessCookie(req, res)
-  res.redirect(req.simulation!.returnPath)
+async function sendFollowupNotifications(followup: Followup, res: Response) {
+  const { email, phone } = followup
+  if (phone) {
+    if (
+      phoneNumberValidation(phone, config.smsService.internationalDiallingCodes)
+    ) {
+      await sendSimulationResultsSms(followup)
+    } else {
+      return res.status(422).send("Unsupported phone number format")
+    }
+  }
+  if (email) {
+    await sendSimulationResultsEmail(followup)
+  }
+  return res.send({ result: "OK" })
+}
+
+async function createSimulationRecapUrl(req: Request, res: Response) {
+  const followup = await FollowupFactory.create(req.simulation)
+  await followup.addSurveyIfMissing(
+    SurveyType.TrackClickTemporarySimulationLink
+  )
+  await followup.save()
+  const simulationRecapUrl = `${config.baseURL}${followup.shortRecapPath}`
+  return res.send({ simulationRecapUrl })
 }
 
 export async function persist(req: Request, res: Response) {
-  if (!req.body.email?.length && !req.body.phone?.length) {
-    return res.status(400).send({ result: "Missing Email or Phone" })
-  }
-
+  const { surveyOptin, email, phone } = req.body
   const simulation = req.simulation
-
   try {
-    const { surveyOptin, email, phone } = req.body
-    const followup = (await FollowupFactory.create(
-      simulation,
-      surveyOptin,
-      email,
-      phone
-    )) as Followup
-    if (email) {
-      await sendSimulationResultsEmail(followup)
+    if (email || phone) {
+      const followup = await FollowupFactory.createWithResults(
+        simulation,
+        surveyOptin,
+        email,
+        phone
+      )
+      return sendFollowupNotifications(followup, res)
+    } else {
+      return createSimulationRecapUrl(req, res)
     }
-    if (phone) {
-      if (
-        phoneNumberValidation(
-          phone,
-          config.smsService.internationalDiallingCodes
-        )
-      ) {
-        await sendSimulationResultsSms(followup)
-      } else {
-        return res.status(422).send("Unsupported phone number format")
-      }
-    }
-    return res.send({ result: "OK" })
   } catch (error: any) {
     Sentry.captureException(error)
     if (error.name === "ValidationError") {
@@ -179,12 +184,6 @@ export async function updateWasUseful(req: Request) {
     SurveyType.TrackClickOnSimulationUsefulnessEmail,
     answers
   )
-  await followup.save()
-}
-
-async function updateTrackClickOnBenefitActionEmail(req: Request) {
-  const { followup } = req
-  await followup.updateSurvey(SurveyType.TrackClickOnBenefitActionEmail)
 }
 
 async function updateSurveyInFollowup(req: Request) {
@@ -195,14 +194,9 @@ async function updateSurveyInFollowup(req: Request) {
     case SurveyType.TrackClickOnSimulationUsefulnessEmail:
       await updateWasUseful(req)
       break
-    case SurveyType.TrackClickOnBenefitActionEmail:
-      await updateTrackClickOnBenefitActionEmail(req)
-      break
-    case SurveyType.TousABordNotification:
-      await followup.updateSurvey(SurveyType.TousABordNotification)
-      break
     default:
-      throw new Error(`Unknown survey type: ${surveyType}`)
+      await followup.updateSurvey(surveyType)
+      break
   }
 }
 
@@ -211,14 +205,14 @@ async function getRedirectUrl(req: Request) {
   const { followup } = req
   switch (surveyType) {
     case SurveyType.TrackClickOnSimulationUsefulnessEmail:
-    case SurveyType.TrackClickOnBenefitActionEmail:
     case SurveyType.TrackClickOnBenefitActionSms: {
       await followup.addSurveyIfMissing(SurveyType.BenefitAction)
-      const surveyOpened = await followup.addSurveyIfMissing(surveyType)
-      surveyOpened.openedAt = dayjs().toDate()
       await followup.save()
       return followup.surveyPath
     }
+    case SurveyType.TrackClickTemporarySimulationLink:
+      await followup.save()
+      return followup.recapPath
     case SurveyType.TousABordNotification:
       return "https://www.tadao.fr/713-Demandeur-d-emploi.html"
     default:
@@ -229,18 +223,6 @@ async function getRedirectUrl(req: Request) {
 export async function logSurveyLinkClick(req: Request, res: Response) {
   try {
     await updateSurveyInFollowup(req)
-    const redirectUrl = await getRedirectUrl(req)
-
-    res.redirect(redirectUrl)
-  } catch (error) {
-    console.error("error", error)
-    return res.sendStatus(404)
-  }
-}
-
-export async function smsSurveyLinkClick(req: Request, res: Response) {
-  try {
-    req.params.surveyType = SurveyType.TrackClickOnBenefitActionSms
     const redirectUrl = await getRedirectUrl(req)
     res.redirect(redirectUrl)
   } catch (error) {

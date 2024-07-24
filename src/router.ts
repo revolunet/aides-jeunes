@@ -23,9 +23,7 @@ const router = createRouter({
     {
       path: "/logout-callback",
       name: "logout-callback",
-      beforeEnter(to) {
-        document.location = `/api/france-connect${to.href}`
-      },
+      redirect: (to) => `/api/france-connect${to.fullPath}`,
     },
     {
       path: "/simulation",
@@ -37,18 +35,20 @@ const router = createRouter({
       },
       children: [
         {
+          path: "revenir-plus-tard",
+          name: "revenirPlusTard",
+          component: () => import("./views/simulation/revenir-plus-tard.vue"),
+        },
+        {
           path: "redirect",
           name: "redirect",
           beforeEnter(to, from, next) {
-            const store = useStore()
-            store
-              .fetch(Simulations.getLatestId())
-              .then(() => {
-                next(`/simulation${to.query.to || ""}`)
-              })
-              .catch(() => {
-                next("/")
-              })
+            const simulationLatestId = Simulations.getLatestId()
+            if (simulationLatestId) {
+              next(`/simulation${to.query.to || ""}`)
+            } else {
+              next("/")
+            }
           },
         },
         {
@@ -141,39 +141,58 @@ const router = createRouter({
           component: () => import("./views/simulation/recapitulatif.vue"),
         },
         {
-          name: "resultats",
+          name: "resultatsWrapper",
           path: "resultats",
           meta: {
             headTitle: `Les résultats de ma simulation sur le simulateur d'aides ${context.name}`,
           },
-          component: () => import("./views/simulation/resultats.vue"),
-        },
-        {
-          name: "resultatsLieuxGeneriques",
-          path: "resultats/lieux",
           component: () =>
-            import("./views/simulation/resultats/lieux-generiques.vue"),
-          meta: {
-            headTitle: `Trouver de l'aide près de chez vous avec le simulateur d'aides ${context.name}`,
-          },
-        },
-        {
-          name: "benefitLieuInformations",
-          path: "resultats/:benefitId/:lieu_id/informations",
-          component: () =>
-            import("./views/simulation/resultats/lieu-informations.vue"),
-          meta: {
-            headTitle:
-              "Informations de l'établissement près de chez vous avec le simulateur d'aides ${context.name}",
-          },
-        },
-        {
-          name: "resultatInattendu",
-          path: "resultat/inattendu/:id",
-          component: () => import("./views/simulation/resultat-inattendu.vue"),
-          meta: {
-            title: "Résultat inattendu",
-          },
+            import("./views/simulation/resultats/resultats-wrapper.vue"),
+          children: [
+            {
+              name: "resultats",
+              path: "",
+              component: () =>
+                import("./views/simulation/resultats/resultats.vue"),
+            },
+            {
+              name: "resultatsDetails",
+              path: ":benefitId",
+              component: () =>
+                import("./views/simulation/resultats/resultats-details.vue"),
+              meta: { showBackToResultsButton: true },
+            },
+            {
+              name: "resultatsGroupe",
+              path: "groupe/:groupId",
+              component: () =>
+                import("./views/simulation/resultats/benefits-list.vue"),
+              meta: { showBackToResultsButton: true },
+            },
+            {
+              name: "resultatsLieuxGeneriques",
+              path: "lieux",
+              component: () =>
+                import("./views/simulation/resultats/lieux-generiques.vue"),
+              meta: { showBackToResultsButton: true },
+            },
+            {
+              name: "resultatInattendu",
+              path: "inattendu/:id",
+              component: () =>
+                import("./views/simulation/resultats/resultat-inattendu.vue"),
+              meta: {
+                title: "Résultat inattendu",
+                showBackToResultsButton: true,
+              },
+            },
+            {
+              name: "benefitLieuInformations",
+              path: ":benefitId/:lieu_id/informations",
+              component: () =>
+                import("./views/simulation/resultats/lieu-informations.vue"),
+            },
+          ],
         },
         {
           name: "ressourcesFiscales",
@@ -195,25 +214,12 @@ const router = createRouter({
             title: "Votre patrimoine",
           },
         },
-        {
-          name: "resultatsDetails",
-          path: "resultats/:benefitId",
-          component: () => import("./views/simulation/resultats-detail.vue"),
-        },
       ],
     },
     {
       path: "/redirection",
       name: "redirection",
       component: () => import("./views/redirection.vue"),
-    },
-    {
-      path: "/stats",
-      name: "stats",
-      component: () => import("./views/stats.vue"),
-      meta: {
-        headTitle: `Statistiques du simulateur d'aides ${context.name}`,
-      },
     },
     {
       path: "/aides",
@@ -224,12 +230,22 @@ const router = createRouter({
       },
     },
     {
+      path: "/preview",
+      name: "preview",
+      component: () => import("./views/preview.vue"),
+    },
+    {
       path: "/aides/:benefitId",
       name: "aide",
       component: () => import("./views/aide.vue"),
       meta: {
         headTitle: `Simulateur d'aides ${context.name}`,
       },
+    },
+    {
+      path: "/parcours",
+      name: "parcours",
+      component: () => import("./views/parcours.vue"),
     },
     {
       path: "/preremplissage",
@@ -256,6 +272,12 @@ const router = createRouter({
       name: "init-ci",
       redirect: () => {
         ABTestingService.setVariant("CTA_EmailRecontact", "version_actuelle")
+        ABTestingService.setVariant(
+          "aides_bafa",
+          "aides_bafa_fusionnees_conserve_position"
+        )
+        ABTestingService.setVariant("question_debut_chomage", "reformulation")
+        ABTestingService.setVariant("Followup_SMS", "show")
         return "/"
       },
     },
@@ -267,9 +289,11 @@ const router = createRouter({
       },
     },
   ],
-  scrollBehavior(to /*, from, savedPosition*/) {
-    if (to.hash) {
-      // https://router.vuejs.org/guide/advanced/scroll-behavior.html
+  // https://router.vuejs.org/guide/advanced/scroll-behavior.html
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else if (to.hash) {
       return {
         el: to.hash,
         behavior: "smooth",
@@ -291,31 +315,31 @@ router.beforeEach((to, from, next) => {
     if (
       to.matched.some((r) => r.name === "foyer" || r.name === "simulation") &&
       !to.path.endsWith("/date_naissance") &&
-      [
-        "redirect",
-        "resultats",
-        "resultatsDetails",
-        "resultatsLieuxGeneriques",
-      ].indexOf(to.name) === -1 &&
+      typeof to.name === "string" &&
+      !(
+        to.name == "redirect" ||
+        to.name == "recapitulatif" ||
+        to.matched.some((r) => r.name === "resultatsWrapper")
+      ) &&
       !store.passSanityCheck &&
       to.query.debug === undefined
     ) {
       return store.redirection((route) => next(route))
     }
   }
-
-  if (to.meta.title) {
-    if (typeof to.meta.title === "function") {
-      store.setTitle(to.meta.title(to, store.situation))
-    } else {
-      store.setTitle(to.meta.title)
+  const metaTitle = to.meta.title
+  if (metaTitle) {
+    if (typeof metaTitle === "function") {
+      store.setTitle(metaTitle(to, store.situation))
+    } else if (typeof metaTitle === "string") {
+      store.setTitle(metaTitle)
     }
   } else {
     store.setTitle("Évaluez vos droits aux aides sociales")
   }
 
   if (store.error) {
-    store.updateError(false)
+    store.updateError()
   }
   if (store.message.text) {
     store.decrementMessageRemainingViewTime()

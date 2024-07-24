@@ -1,14 +1,17 @@
-label: bourses pour les formations sanitaires et sociales
+label: bourses dʼétudes pour les formations sanitaires et sociales
 institution: region_centre_val_de_loire
-description: La Région attribue des bourses d’études pour les personnes rentrant
-  en formation dans un institut régional agréé, soumises à conditions de
-  ressources.
+description:
+  Les bourses dʼétudes pour les formations sanitaires et sociales sont accordées
+  par la Région Centre-Val-de-Loire aux apprenants et apprenantes inscrits dans des formations éligibles et
+  sous certaines conditions de ressources. Le montant de la bourse d'études varie de 1032 à 5679 euros annuel.
 prefix: les
 conditions_generales:
   - type: regions
     values:
       - "24"
   - type: formation_sanitaire_social
+conditions:
+  - Déposer votre demande de bourse sur le site messervices.etudiant.gouv.fr lors de la création du dossier social étudiant.
 profils:
   - type: lyceen
     conditions: []
@@ -16,12 +19,13 @@ profils:
     conditions: []
   - type: enseignement_superieur
     conditions: []
+  - type: inactif
+    conditions: []
 interestFlag: _interetAidesSanitaireSocial
 type: float
 unit: €
 periodicite: ponctuelle
 legend: maximum
 montant: 5679
-link: https://www.aress.regioncentre-valdeloire.fr/basscep/#
-teleservice: https://www.aress.regioncentre-valdeloire.fr/basscep/#
-instructions: ""
+link: https://www.crous-orleans-tours.fr/bourses-et-aides-financieres/faire-une-demande-de-bourse/les-bourses-detudes-regionales-pour-les-apprenants-des-formations-sanitaires-et-sociales/
+teleservice: https://www.messervices.etudiant.gouv.fr/envole/

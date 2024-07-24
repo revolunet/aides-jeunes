@@ -74,7 +74,7 @@ export const FSL_BY_INSTITUTION_SLUG = {
     label: "du département du Calvados",
     link: "https://www.calvados.fr/accueil/le-departement/solidarite---familles/aide-au-logement/fsl.html",
     instructions:
-      "https://www.calvados.fr/accueil/le-departement/solidarite---familles/aide-au-logement/fsl.html",
+      "https://www.calvados.fr/contents/fiche/fiches-aide--services/maintien-dans-votre-logement--la.html",
   },
   departement_cantal: {
     label: "du département du Cantal",
@@ -137,7 +137,7 @@ export const FSL_BY_INSTITUTION_SLUG = {
   },
   toulouse_metropole: {
     label: "de Toulouse Métropole",
-    link: "https://www.toulouse-metropole.fr/missions/solidarite/fonds-de-solidarite-logement-fsl-",
+    link: "https://metropole.toulouse.fr/mon-environnement/logement-et-urbanisme/se-loger/louer-un-logement#obtenir-une-aide-au-logement",
   },
   departement_gironde: {
     label: "du département de la Gironde",
@@ -252,11 +252,16 @@ export const FSL_BY_INSTITUTION_SLUG = {
   },
   departement_bas_rhin: {
     label: "du département du Bas-Rhin",
-    link: "https://www.bas-rhin.fr/action-sociale-et-sante/difficultes-logement/",
+    link: "https://www.alsace.eu/aides-et-services/habitat/vous-rencontrez-difficultes-avec-votre-logement/",
+    excludedEPCI: "246700488",
+  },
+  strasbourg_eurometropole: {
+    label: "de l'Eurométropole de Strasbourg",
+    link: "https://www.strasbourg.eu/fond-de-solidarite-pour-le-logement",
   },
   departement_du_haut_rhin: {
     label: "du département du Haut-Rhin",
-    link: "https://www.haut-rhin.fr/content/des-aides-pour-votre-logement",
+    link: "https://www.alsace.eu/aides-et-services/habitat/vous-rencontrez-difficultes-avec-votre-logement/",
   },
   departement_rhone: {
     label: "du département du Rhône",
@@ -280,7 +285,7 @@ export const FSL_BY_INSTITUTION_SLUG = {
   },
   departement_haute_savoie: {
     label: "du département de la Haute-Savoie",
-    link: "https://www.hautesavoie.fr/informations-services/logement",
+    link: "https://hautesavoie.fr/subvention/fonds-de-solidarite-logement-fsl-aide-au-maintien-dans-les-lieux-impayes-de-loyers/",
   },
   departement_paris: {
     label: "du département de Paris",

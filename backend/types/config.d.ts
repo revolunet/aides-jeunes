@@ -1,6 +1,14 @@
 export interface Configuration {
   env: string
   baseURL: string
+  contactEmail: string
+  contextName: string
+  accompagnement: {
+    path: string
+    unauthorizedPath: string
+    errorPath: string
+  }
+  aideJeuneExperimentationURL: string
   franceConnect: {
     root?: string
     clientId?: string
@@ -28,16 +36,18 @@ export interface Configuration {
   }
   github: {
     repository_url: string
-    access_token_url: string
-    authenticated_url: string
-    authorize_url: string
-    client_secret: string
-    client_id: string
-    authorized_users: string[]
   }
   matomo: {
     id: number
     url: string
+  }
+  moncomptepro: {
+    authorized_email_users: string[]
+    client_id: string
+    client_secret: string
+    provider: string
+    redirect_uri: string
+    scope: string
   }
   statistics: {
     url: string
@@ -61,5 +71,8 @@ export interface Configuration {
     password: string
     url: string
     internationalDiallingCodes: string[]
+  }
+  chatwoot: {
+    websiteToken: string
   }
 }

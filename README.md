@@ -44,13 +44,25 @@ The application should be accessible at `localhost:8080`.
 
 ## System dependencies
 
+Make sure `node` 18.x is installed on your machine:
+
 ### Ubuntu
 
-Make sure `build-essential`, `mongodb` and `node` 18.x are installed on your machine:
+And also `build-essential`, `mongodb` are installed on your machine:
 
 ```sh
 sudo apt-get install build-essential
 sudo apt-get install mongodb
+```
+
+### MacOs
+
+And also `brew` is installed on your machine:
+
+```sh
+brew tap mongodb/brew # Download official homebrew formula for MongoDb
+brew update # Update Homebrew and all existing formulae
+brew install mongodb-community@7.0 # Install MongoDb
 ```
 
 ### For all platforms
@@ -154,6 +166,10 @@ There are several levels of tests:
 
 You can safely use `npm test && npm run cypress` to drive your developments.
 
+## Development Environment and Cypress
+
+In Cypress tests, we verify that email functionality works. To check this locally, you need to copy and paste the environmental variables from .env.e2e to your .env file (and create the .env file if you don't already have one).
+
 ## Email
 
 We use the framework [MJML](https://mjml.io/) to design and integrate the templates. [Tipimail](https://fr.tipimail.com) is our service to send emails.
@@ -195,6 +211,8 @@ In order to use those tools you need to build the server at least once using the
 
 - `npm run tools:generate-missing-institutions-aides-velo` generates missing institutions for the package `aides-velo`.
 
+- `npm run tools:download-incitations-covoiturage-generate-missing-institutions` download new carpooling incentives and generates missing epci for the Open Data `Registre de Preuve de Covoiturage`.
+
 - `npm run tools:geographical-benefits-details` gets the relevant benefits for each commune.
 
 - `npm run tools:get-all-steps` gets all the steps and substeps of a simulation.
@@ -221,13 +239,36 @@ This will generate 3 csv files in the `dist/documents` folder:
 - `monthly_age.csv` that lists the number of simulations per age for each month
 - `monthly_geo.csv` that lists the number of simulations per epci, departement and regions for each month
 
-## NetlifyCMS development
+## Decap CMS development
 
-It is possible to locally debug changes in NetlifyCMS configuration.
+It is possible to locally debug changes in Decap CMS configuration.
 
-- First, [contribuer/public/admin/config.yml#L19](https://github.com/betagouv/aides-jeunes/blob/main/contribuer/public/admin/config.yml#L15) ([`local_backend: true`](https://www.netlifycms.org/docs/beta-features/#working-with-a-local-git-repository)) must be uncommented;
-- `npx netlify-cms-proxy-server` should be ran from `.` and
 - `npm ci` and `npm run dev` should be ran from `contribuer`.
-- Netlify CMS should now be accessible at `http://localhost:3000/admin/index.html`
+- Decap CMS should now be accessible at `http://localhost:3000/admin/index.html`
 
-Changes made will be reflected locally instead of generating pull requests in production.
+If you want changes to be made locally instead of generating pull requests in production:
+
+- First, [contribuer/public/admin/config.yml#L19](https://github.com/betagouv/aides-jeunes/blob/main/contribuer/public/admin/config.yml#L19) ([`local_backend: true`](https://decapcms.org/docs/working-with-a-local-git-repository)) must be uncommented;
+- `npx netlify-cms-proxy-server` should be ran from `.` and
+
+## Check Link Validity
+
+Some parameters can be use to debug the command
+
+- `--dry-run` : this command is useful to not send update/new row to Grist
+- `--no-priority` : without getting priority from analytic data
+- `--only [slug benefit]` : work on specific benefit
+
+Here is an example of how using this parameters
+`npm run tools:check-links-validity -- --dry-run`
+
+## Download carpooling incentives and generate missing ecpi
+
+The data source comes from this : https://www.data.gouv.fr/fr/datasets/conditions-des-campagnes-dincitation-financiere-au-covoiturage/
+We use Grist to add custom informations like, if a benefit is link to an institution or epci, ...
+One parameter can be use to debug the command
+
+- `--no-download` : avoid download new data from Grist
+
+Here is an example of how using this parameters
+`npm run tools:download-incitations-covoiturage-generate-missing-institutions -- --no-download`

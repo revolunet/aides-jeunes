@@ -3,17 +3,23 @@
     <p>
       Sélectionnez les types de ressources perçues
       <strong>
-        <span v-if="individu._role === 'conjoint'">par votre conjoint(e)</span>
-        <span v-else-if="individu._role !== 'demandeur'"
-          >par {{ individu._firstName }}</span
+        <span v-if="individu._role === 'demandeur'">par vous uniquement</span>
+        <span v-else-if="individu._role === 'conjoint'"
+          >par votre conjoint(e)</span
         >
-        <span v-else-if="individu.enfant_a_charge[store.dates.thisYear.label]">
-          par vos parents ou par vos tuteurs légaux
-        </span>
+        <span v-else> par {{ individu._firstName }} </span>
         depuis {{ store.dates.twelveMonthsAgo.label }}</strong
       >. Vous pourrez ensuite saisir les montants.
-      <EnSavoirPlus v-if="hasSeparatedParents" />
     </p>
+    <div
+      v-if="showInitialResourcesCollectionWarning"
+      class="fr-alert fr-alert--info fr-my-1w fr-mb-3w"
+    >
+      <p
+        >Les ressources perçues par {{ additionnalResourcesText }} seront
+        demandées plus tard dans le simulateur.
+      </p>
+    </div>
     <fieldset
       v-for="category in categories"
       :key="category.id"
@@ -21,7 +27,7 @@
     >
       <legend class="fr-fieldset__legend fr-px-0">
         <span class="fr-text--lead fr-text--bold">
-          {{ $filters.capitalize(category.label) }}
+          {{ capitalize(category.label) }}
         </span>
       </legend>
       <div class="fr-fieldset__content">
@@ -54,13 +60,14 @@ import { ressourceCategories, ressourceTypes } from "@lib/resources.js"
 import Ressource from "@lib/ressource.js"
 import { getAnswer } from "@lib/answers.js"
 import { useStore } from "@/stores/index.js"
-import EnSavoirPlus from "@/components/en-savoir-plus.vue"
+import { capitalize } from "@lib/utils.js"
+import IndividuMethods from "@lib/individu"
+import { datesGenerator } from "@lib/dates"
 
 export default {
   name: "RessourceTypes",
   components: {
     ActionButtons,
-    EnSavoirPlus,
   },
   props: {
     individu: Object,
@@ -68,6 +75,7 @@ export default {
   setup() {
     return {
       store: useStore(),
+      capitalize,
     }
   },
   data() {
@@ -107,8 +115,53 @@ export default {
         count == 1 ? "ressource sélectionnée" : "ressources sélectionnées"
       }`
     },
-    hasSeparatedParents() {
-      return this.store.situation?.parents?._situation === "separes"
+    allActiveSteps() {
+      return this.store.getAllSteps.filter((step) => step.isActive)
+    },
+    needCoupleResources() {
+      return this.allActiveSteps.filter(
+        (step) => step.id === "conjoint" && step.variable === "ressources"
+      ).length
+    },
+    needParentsResources() {
+      return (
+        this.allActiveSteps.filter(
+          (step) => step.entity === "parents" && step.variable === "rfr"
+        ).length ||
+        this.allActiveSteps.filter(
+          (step) =>
+            step.id === "demandeur" &&
+            step.variable ===
+              "bourse_criteres_sociaux_base_ressources_parentale"
+        ).length
+      )
+    },
+    numberChildrenMore16() {
+      return this.store.situation?.enfants?.filter(
+        (enfants) =>
+          IndividuMethods.age(
+            enfants,
+            datesGenerator(this.store.situation?.dateDeValeur).today.value
+          ) > 15
+      ).length
+    },
+    showInitialResourcesCollectionWarning() {
+      return (
+        this.individu._role === "demandeur" && this.additionnalResources.length
+      )
+    },
+    additionnalResources() {
+      return [
+        ...(this.needCoupleResources ? ["votre conjoint(e)"] : []),
+        ...(this.numberChildrenMore16 > 1 ? ["vos enfants"] : []),
+        ...(this.numberChildrenMore16 === 1 ? ["votre enfant"] : []),
+        ...(this.needParentsResources ? ["vos parents ou tuteurs légaux"] : []),
+      ]
+    },
+    additionnalResourcesText() {
+      const last = this.additionnalResources.slice(-1)
+      const others = this.additionnalResources.slice(0, -1)
+      return [...(others.length ? [others.join(", ")] : []), last].join(" et ")
     },
   },
   watch: {

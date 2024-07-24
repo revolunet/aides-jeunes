@@ -1,6 +1,12 @@
 import Benefits from "../data/all.js"
-import { determineOperationsOnBenefitLinkError } from "../lib/benefits/link-validity.js"
-import { GristData } from "../lib/types/link-validity.js"
+import {
+  determineExistingWarningsFixByPrivateBenefits,
+  determineOperationsOnBenefitLinkError,
+} from "../lib/benefits/link-validity.js"
+import {
+  GristData,
+  GristLinkValidityResponse,
+} from "../lib/types/link-validity.js"
 import { Grist } from "../lib/grist.js"
 import Mattermost from "../backend/lib/mattermost-bot/mattermost.js"
 
@@ -8,7 +14,6 @@ import axios from "axios"
 import https from "https"
 import Bluebird from "bluebird"
 import * as Sentry from "@sentry/node"
-import dayjs from "dayjs"
 
 const DEFAULT_BRANCH_REF = "refs/heads/main"
 
@@ -45,6 +50,13 @@ async function getHTTPStatus(link) {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0",
+        Referer: "https://mes-aides.1jeune1solution.beta.gouv.fr/",
+        TE: "trailers",
+        "Upgrade-Insecure-Requests": 1,
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-GPC": "1",
+        "Sec-Fetch-User": "?1",
+        "Sec-Fetch-Dest": "document",
       },
       httpsAgent,
     })
@@ -59,23 +71,30 @@ function sleep(ms) {
 }
 
 async function getPriorityStats() {
-  const lastMonth: string = dayjs().subtract(1, "month").format("YYYY-MM-DD")
   const stats = await axios
     .get(
-      `https://aides-jeunes-stats-recorder.osc-fr1.scalingo.io/benefits?startAt=${lastMonth}`
+      "https://stats.data.gouv.fr/index.php?module=API&format=JSON&idSite=165&period=range&date=previous30&method=Events.getName&filter_limit=-1"
     )
     .then((response) => response.data)
 
-  return stats.reduce((priorityMap, benefitStatsEvent) => {
-    const benefitId: string = benefitStatsEvent.id
-    const priority: number = benefitStatsEvent.events.showDetails
+  return stats.reduce((priorityMap, statItem) => {
+    const benefitId: string = statItem.label
+    const priority: number = statItem.nb_visits
 
     if (priority) {
       priorityMap[benefitId] = priority
     }
 
     return priorityMap
-  })
+  }, {})
+}
+
+function filterPublicBenefits(benefits) {
+  return benefits.filter((benefit) => !benefit.private)
+}
+
+export function filterPrivateBenefits(benefits) {
+  return benefits.filter((benefit) => benefit.private)
 }
 
 async function getBenefitData(noPriority: boolean) {
@@ -87,8 +106,8 @@ async function getBenefitData(noPriority: boolean) {
     Sentry.captureException(error)
     console.warn("Unable to get priority stats, priorityMap is empty")
   }
-
-  const data = Benefits.all.map((benefit) => {
+  const publicBenefits = filterPublicBenefits(Benefits.all)
+  const data = publicBenefits.map((benefit) => {
     const linkMap = ["link", "instructions", "form", "teleservice"]
       .filter(
         (linkType) => benefit[linkType] && typeof benefit[linkType] === "string"
@@ -170,10 +189,16 @@ async function main() {
     throw new Error("Missing GRIST_API_KEY")
   }
   const gristAPI = Grist(process.env.GRIST_DOC_ID, process.env.GRIST_API_KEY)
-  const rawExistingWarnings = await gristAPI.get({
+
+  const user = await gristAPI.getConnectedUser()
+  console.log(`Connected as ${user.name}.`)
+
+  const rawExistingWarnings = (await gristAPI.get({
     Corrige: [false],
     Aide: benefitIdsFromCLI,
-  })
+    Traite: [false],
+  })) as GristLinkValidityResponse
+
   const benefitData = await getBenefitData(noPriority)
   const benefitsToAnalyze = filterBenefitDataToProcess(
     benefitData,
@@ -206,8 +231,17 @@ async function main() {
         pullRequestURL
       )
   )
-  type recordsByOperationTypesType = { [operationType: string]: GristData[] }
-  const recordsByOperationTypes: recordsByOperationTypesType = {
+
+  const privateBenefits = filterPrivateBenefits(Benefits.all)
+  determineExistingWarningsFixByPrivateBenefits(
+    existingWarnings,
+    privateBenefits,
+    benefitOperationsList,
+    pullRequestURL
+  )
+
+  type RecordsByOperationTypesType = { [operationType: string]: GristData[] }
+  const recordsByOperationTypes: RecordsByOperationTypesType = {
     add: [],
     update: [],
   }
@@ -239,11 +273,10 @@ async function main() {
 
   if (invalidLinksAdded && !dryRun && !processingPR) {
     const text = [
-      ":icon-info: La liste des aides avec des liens invalides a été mise à jour ici : [lien](https://grist.incubateur.net/o/docs/mRipN1JbV6sB/Aides-Jeunes/p/39)",
+      `:icon-info: La liste des aides avec des liens invalides a été mise à jour ici : [lien](https://grist.incubateur.net/o/aides-jeunes/${process.env.GRIST_DOC_ID}/Veille/p/39)`,
       `Ajout: ${recordsByOperationTypes.add.length}`,
       `Mise à jour: ${recordsByOperationTypes.update.length}`,
     ].join("\n")
-
     Mattermost.post(text, process.env.MATTERMOST_ALERTING_URL)
   }
 }

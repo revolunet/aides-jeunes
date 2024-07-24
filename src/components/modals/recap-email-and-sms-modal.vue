@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import RecapEmailAndSmsForm from "@/components/recap-email-and-sms-form.vue"
-import { useStore } from "@/stores/index.js"
 import { computed } from "vue"
-
-const store = useStore()
-const hide = () => store.setModalState(undefined)
+import ABTestingService from "@/plugins/ab-testing-service.js"
 
 const headerTitle = computed(() => {
-  return process.env.VITE_SHOW_SMS_TAB
+  return process.env.VITE_SHOW_SMS_TAB &&
+    ABTestingService.getValues().Followup_SMS === "show"
     ? "Recevoir les résultats par email/SMS"
     : "Recevoir les résultats par email"
 })
@@ -33,7 +31,6 @@ const headerTitle = computed(() => {
                 class="fr-btn--close fr-btn"
                 title="Fermer la fenêtre modale"
                 aria-controls="fr-modal-email"
-                @click="hide"
                 >Fermer</button
               >
             </div>

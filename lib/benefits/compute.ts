@@ -6,9 +6,9 @@ import { computeAidesVeloBenefits } from "./compute-aides-velo.js"
 import { Situation } from "../../lib/types/situations.d.js"
 import { BenefitCatalog } from "../../data/types/generator.d.js"
 import { Resultats } from "@lib/types/store.js"
-
-import { generator } from "../dates.js"
-export const datesGenerator = generator
+import { datesGenerator } from "../dates.js"
+import { getBenefitLegend } from "./details.js"
+import { getParameters } from "../../backend/lib/openfisca/parameters.js"
 
 /**
  * OpenFisca test cases separate ressources between two entities: individuals and families.
@@ -65,7 +65,7 @@ export function computeAides(
   openfiscaResponse,
   showPrivate?: boolean
 ) {
-  const periods = generator(situation.dateDeValeur)
+  const periods = datesGenerator(situation.dateDeValeur)
 
   computeJavascriptBenefits(this, situation, openfiscaResponse)
 
@@ -133,6 +133,8 @@ export function computeAides(
           }
         : benefit.institution
 
+      const openfiscaParameters = getParameters(situation.dateDeValeur)
+
       result.droitsEligibles!.push(
         // @ts-ignore
         assign({}, benefit, customization, {
@@ -143,6 +145,7 @@ export function computeAides(
           montant: value,
           showUnexpectedAmount: benefit.computeUnexpectedAmount?.(situation),
           institution,
+          legend: getBenefitLegend(benefit, openfiscaParameters),
         })
       )
     })

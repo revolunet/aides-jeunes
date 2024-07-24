@@ -5,6 +5,14 @@ const init = () => {
   cy.visit("http://localhost:8080/init-ci")
 }
 
+const goToBafaBenefitsPage = () => {
+  cy.get('[data-testid="bafa-bafd-preview"]').click()
+}
+
+const goToAidesVeloBenefitsPage = () => {
+  cy.get('[data-testid="velo-preview"]').click()
+}
+
 const goHome = () => {
   cy.get('meta[property="og:description"]')
     .invoke("attr", "content")
@@ -41,8 +49,27 @@ const updateFromRecap = (sectionTitle, buttonLabel) => {
       .click()
   })
 }
+
+const goToComeBackLater = () => {
+  cy.get('a[data-testid="come-back-later-link"]').should("be.visible").click()
+  cy.url().should("include", "/simulation/revenir-plus-tard")
+}
+
+const goToEnSavoirPlus = () => {
+  cy.get('[data-testid="en-savoir-plus-button"]').should("be.visible").click()
+  cy.get('[data-testid="en-savoir-plus-button"]').should("not.exist")
+  cy.url().should("include", "/en_savoir_plus")
+  cy.get('[data-testid="en-savoir-plus-back-button"]')
+    .should("be.visible")
+    .click()
+}
+
 export default {
   init,
+  goToComeBackLater,
+  goToEnSavoirPlus,
+  goToBafaBenefitsPage,
+  goToAidesVeloBenefitsPage,
   goHome,
   goToIframe,
   goRecap,
